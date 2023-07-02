@@ -1,3 +1,6 @@
+use mongodb::error::Error;
+
+
 #[derive(Debug, thiserror::Error)]
 pub enum AppErrors {
     #[error("Data was not found")]
@@ -19,4 +22,13 @@ impl AppErrors {
             AppErrors::InternalError(e) => format!("Internal error: {e}"),
         }
     }
+
+    pub fn from_unknown_result<T>(result: Result<T, Error>, message: &str) -> Result<T, Self> {
+        match result {
+            Ok(v) => Ok(v),
+            Err(e) => Err(Self::InternalError(format!("Something went wrong: {message}")))
+        }
+    }
 }
+
+pub type AppResult<T> = Result<T, AppErrors>; 

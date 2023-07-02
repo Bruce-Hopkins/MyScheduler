@@ -4,13 +4,13 @@
 
 pub mod models;
 pub mod handlers;
-pub mod service;
+pub mod services;
 pub mod tests;
 pub mod common;
 
 use models::tasks::{Task, Time};
 use mongodb::{Collection, Database, options::ClientOptions, Client};
-use service::tasks_service::TasksService;
+use services::tasks_service::TasksService;
 use tokio::sync::Mutex;
 use std::{env, sync::Arc};
 pub struct EnvConfig {

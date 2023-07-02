@@ -4,11 +4,15 @@
 
 pub mod models;
 pub mod handlers;
+pub mod service;
 pub mod tests;
+pub mod common;
 
-use models::tasks::Task;
+use models::tasks::{Task, Time};
 use mongodb::{Collection, Database, options::ClientOptions, Client};
-use std::env;
+use service::tasks_service::TasksService;
+use tokio::sync::Mutex;
+use std::{env, sync::Arc};
 pub struct EnvConfig {
     // App
     pub app_env: String,
@@ -97,6 +101,7 @@ impl EnvConfig {
 
 struct AppState {
     task_service: TasksService,
+    test: String,
 }
 impl AppState {
     /**
@@ -113,33 +118,45 @@ impl AppState {
         let task_col = Self::start_collections(&db, "tasks").await;
         let task_service = TasksService::new(task_col);
         Self {
-            task_service
+            task_service,
+            test: "test".to_string()
         }
+    }
+
+    fn into_arc(self) -> Arc<Mutex<Self>> {
+        let mutex = Mutex::new(self);
+        Arc::new(mutex)
     }
 }
 
+
+
+#[tauri::command]
+async fn my_custom_command(state: tauri::State<'_, Arc<Mutex<AppState>>>, time: Time) -> Result<String, String> {
+    let test = &state.lock().await.test;
+    Ok(format!("{}:{}. Test:{}", time.hour, time.minute, test))
+}
+
+async fn startup_script() {
+    
+}
 
 #[tokio::main]
 async fn main() {
   
-  let db = init_db().await;
-  let state = AppState::new(&db).await;
+    let db = init_db().await;
+    let state = AppState::new(&db).await;
 
+    startup_script().await;
 
-
-  tauri::Builder::default()
-    .manage(state)
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![my_custom_command]) 
+        .manage(state.into_arc())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 
 
-struct TasksService(Collection<Task>);
-impl TasksService {
-    fn new(collection: Collection<Task>) -> Self {
-        Self(collection)
-    }
-}
 
 pub async fn init_db() -> Database {
     let db_name = String::from("time-managing-app");

@@ -1,4 +1,4 @@
-use mongodb::{Database, Collection};
+use mongodb::{Database, Collection, bson::oid::ObjectId};
 
 use crate::{services::tasks_service::{TasksService, self}, models::tasks::{Task, CreateTask}, init_db, common::errors::AppResult};
 
@@ -28,10 +28,10 @@ impl TestBuilder {
         }
     }
 
-    pub async fn create_task(self) -> AppResult<Self> {
+    pub async fn create_task(&self) -> AppResult<ObjectId> {
         let create_task = CreateTask::default();
-        self.services.task_service.create(create_task).await?;
-        Ok(self)
+        let id = self.services.task_service.create(create_task).await?;
+        Ok(id.inserted_id.as_object_id().unwrap())
     }
 }
 

@@ -1,5 +1,5 @@
 use bson::{oid::ObjectId, doc, Document};
-use mongodb::{Collection, results::InsertOneResult, Cursor};
+use mongodb::{Collection, results::InsertOneResult, Cursor, options::FindOptions};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{common::errors::{AppResult, AppErrors}, models::tasks::Task};
@@ -44,7 +44,15 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         }
     }
 
-    
+
+    pub async fn get_all_by_and_sort(&self, doc: Option<Document>, sort: Document) -> AppResult<Vec<T>> {
+        let find_options = FindOptions::builder().sort(sort).build();
+        let cursor = self.collection.find(doc, find_options).await;
+
+
+        let cursor = AppErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
+        self.process_cursor(cursor).await
+    }
 
     pub async fn process_cursor(
         &self,
@@ -63,7 +71,7 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         Ok(response_vec)
     }
 
-    pub async fn get_all_by(&self, doc: Document) -> AppResult<Vec<T>> {
+    pub async fn get_all_by(&self, doc: Option<Document>) -> AppResult<Vec<T>> {
         let cursor = self.collection.find(doc, None).await;
 
 

@@ -1,4 +1,4 @@
-use chrono::{Date, Utc, DateTime};
+use chrono::{Date, Utc, DateTime, TimeZone, Datelike, Timelike, Days};
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
@@ -12,13 +12,15 @@ pub struct Task {
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     start_at: chrono::DateTime<Utc>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    end_at: chrono::DateTime<Utc>,
+
     colors: String,
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     created_at: chrono::DateTime<Utc>
-
-
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 
 pub struct Time {
@@ -56,6 +58,7 @@ impl WeekDay {
 pub struct CreateTask {
     body: String,
     start_at: String,
+    end_at: String,
     colors: String,
 }
 
@@ -65,6 +68,11 @@ impl CreateTask {
             DateTime::parse_from_rfc3339(&self.start_at).unwrap().naive_utc(),
             Utc,
         );
-        Task { id: None, body: self.body, start_at: start_at_date, colors: self.colors, created_at: Utc::now() }
+
+        let end_at_date = DateTime::<Utc>::from_utc(
+            DateTime::parse_from_rfc3339(&self.end_at).unwrap().naive_utc(),
+            Utc,
+        );
+        Task { id: None, body: self.body, start_at: start_at_date, end_at: end_at_date, colors: self.colors, created_at: Utc::now() }
     }
 }

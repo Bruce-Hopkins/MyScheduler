@@ -1,5 +1,5 @@
 use bson::{oid::ObjectId, doc, Document};
-use mongodb::{Collection, results::InsertOneResult, Cursor, options::FindOptions};
+use mongodb::{Collection, results::{InsertOneResult, UpdateResult}, Cursor, options::FindOptions};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{common::errors::{AppResult, AppErrors}, models::tasks::Task};
@@ -77,5 +77,26 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
 
         let cursor = AppErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
         self.process_cursor(cursor).await
+    }
+
+    pub async fn update_by_doc(
+        &self,
+        filter: Document,
+        fields: Document,
+    ) -> AppResult<UpdateResult> {
+        let doc = doc! {"$set": fields};
+        match self.collection.update_one(filter, doc, None).await {
+            Err(err) => Err(AppErrors::InternalError(err.to_string())),
+            Ok(result) => Ok(result),
+        }
+    }
+
+    pub async fn update_by_id(
+        &self,
+        id: &ObjectId,
+        fields: Document,
+    ) -> AppResult<UpdateResult> {
+        let filter = doc! {"_id": id};
+        self.update_by_doc(filter, fields).await
     }
 }

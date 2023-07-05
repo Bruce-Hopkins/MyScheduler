@@ -56,10 +56,10 @@ impl WeekDay {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 
 pub struct CreateTask {
-    body: String,
-    start_at: String,
-    end_at: String,
-    colors: String,
+    pub body: String,
+    pub start_at: String,
+    pub end_at: String,
+    pub colors: String,
 }
 
 impl CreateTask {

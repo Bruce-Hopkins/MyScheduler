@@ -1,5 +1,5 @@
  use chrono::{Weekday, Utc, TimeZone, Days};
-use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::InsertOneResult, Cursor};
+use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::{InsertOneResult, UpdateResult}, Cursor};
 use tokio_stream::StreamExt;
 
 use crate::{models::tasks::{Task, CreateTask, WeekDay}, common::{errors::{AppErrors, AppResult}, dates::remove_hours_from_date}};
@@ -56,8 +56,15 @@ impl TasksService {
     /**
      * Updates the entry based on the id passed
      */
-    pub async fn update_by_id() {
-        todo!()
+    pub async fn update_by_id(&self, id:&ObjectId, create_task: CreateTask) -> AppResult<UpdateResult>{
+
+        let doc = doc! {
+            "body": create_task.body,
+            "start_at": create_task.start_at,
+            "end_at": create_task.end_at,
+            "colors": create_task.colors,
+        };
+        self.0.update_by_id(id, doc).await
     }
 
     /**

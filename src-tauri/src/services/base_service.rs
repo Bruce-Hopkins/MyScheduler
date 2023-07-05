@@ -1,5 +1,5 @@
 use bson::{oid::ObjectId, doc, Document};
-use mongodb::{Collection, results::{InsertOneResult, UpdateResult}, Cursor, options::FindOptions};
+use mongodb::{Collection, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor, options::FindOptions};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{common::errors::{AppResult, AppErrors}, models::tasks::Task};
@@ -99,4 +99,16 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         let filter = doc! {"_id": id};
         self.update_by_doc(filter, fields).await
     }
+
+    pub async fn delete_by_id(
+        &self,
+        id: &ObjectId,
+    )  -> AppResult<DeleteResult> {
+        let filter = doc! {"_id": id};
+        match self.collection.delete_one(filter, None).await {
+            Err(err) => Err(AppErrors::InternalError(err.to_string())),
+            Ok(result) => Ok(result),
+        }
+    }
+
 }

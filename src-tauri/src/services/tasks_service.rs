@@ -1,5 +1,5 @@
  use chrono::{Weekday, Utc, TimeZone, Days};
-use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::{InsertOneResult, UpdateResult}, Cursor};
+use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor};
 use tokio_stream::StreamExt;
 
 use crate::{models::tasks::{Task, CreateTask, WeekDay}, common::{errors::{AppErrors, AppResult}, dates::remove_hours_from_date}};
@@ -70,8 +70,8 @@ impl TasksService {
     /**
      * Deleted the entry based on the id passed.
      */
-    pub async fn delete_by_id() {
-        todo!()
+    pub async fn delete_by_id(&self, id:&ObjectId) -> AppResult<DeleteResult> {
+        self.0.delete_by_id(id).await
     }
 }
 

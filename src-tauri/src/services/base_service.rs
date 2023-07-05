@@ -68,6 +68,10 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
                 Err(e) => return Err(AppErrors::InternalError(e.to_string())),
             }
         }
+
+        if response_vec.is_empty() {
+            return Err(AppErrors::NoResults)
+        }
         Ok(response_vec)
     }
 

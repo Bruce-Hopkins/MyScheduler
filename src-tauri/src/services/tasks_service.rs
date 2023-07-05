@@ -18,9 +18,6 @@ impl TasksService {
         self.0.create(&task).await
     }
 
-    pub async fn get_by_id(&self, id: &ObjectId) -> AppResult<Task> {
-        self.0.get_one_by_id(id).await
-    }
 
     /** 
         Get's all the tasks based on the day passed 
@@ -28,10 +25,10 @@ impl TasksService {
     pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> AppResult<Vec<Task>> {
         let date1 = remove_hours_from_date(date).unwrap();
 
-        // The last date but added one
-        let date2 = date.checked_add_days(Days::new(1)).unwrap();
+        // Get the dates between today and tomorrow.
+        let date2 = date1.checked_add_days(Days::new(1)).unwrap();
 
-        let doc = doc! { "start_time": { "$gte": date1, "$lte": date2 } };
+        let doc = doc! { "start_at": { "$gte": date1, "$lte": date2 } };
 
         self.0.get_all_by(Some(doc)).await
     }

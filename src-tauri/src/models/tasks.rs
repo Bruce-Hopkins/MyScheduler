@@ -1,6 +1,9 @@
+use bson::{Document, doc};
 use chrono::{Date, Utc, DateTime, TimeZone, Datelike, Timelike, Days};
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
+
+use crate::common::dates::remove_hours_from_date;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 
@@ -28,6 +31,14 @@ pub struct Time {
     pub minute: i32
 }
 
+impl Time {
+    pub fn to_bson(self) -> Document {
+       doc! {
+        "hour": self.hour,
+        "minute": self.minute
+       }
+    } 
+}
 
 pub enum WeekDay {
     Sunday,
@@ -53,13 +64,19 @@ impl WeekDay {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 
 pub struct CreateTask {
     pub body: String,
     pub start_at: String,
     pub end_at: String,
     pub colors: String,
+}
+
+impl Default for CreateTask {
+    fn default() -> Self {
+        Self { body: String::new(), start_at: Utc::now().to_rfc3339(), end_at: Utc::now().to_rfc3339(), colors: String::from("#A3D9FF") }
+    }
 }
 
 impl CreateTask {
@@ -73,6 +90,7 @@ impl CreateTask {
             DateTime::parse_from_rfc3339(&self.end_at).unwrap().naive_utc(),
             Utc,
         );
+
         Task { id: None, body: self.body, start_at: start_at_date, end_at: end_at_date, colors: self.colors, created_at: Utc::now() }
     }
 }

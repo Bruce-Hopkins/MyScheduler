@@ -1,8 +1,8 @@
 use bson::{oid::ObjectId, doc};
-use chrono::Utc;
+use chrono::{Utc, Datelike};
 use mongodb::{Collection, results::{InsertOneResult, DeleteResult, UpdateResult}};
 
-use crate::{models::routine::{Routine, CreateRoutine}, common::errors::AppResult};
+use crate::{models::routine::{Routine, CreateRoutine, DaysOfTheWeek, week_day_from_str}, common::errors::AppResult};
 
 use super::base_service::BaseService;
 
@@ -25,7 +25,15 @@ impl RoutineService {
         Get's all the tasks based on the day passed 
     */
     pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> AppResult<Vec<Routine>> {
-        todo!()
+        let week_day = date.weekday();
+        let week_str = week_day_from_str(week_day);
+
+        let embedded_doc_name = format!("days_of_the_week.{week_str}");
+        let filter = doc! {
+            embedded_doc_name: true
+        };
+
+        self.0.get_all_by(Some(filter)).await
     }
 
 

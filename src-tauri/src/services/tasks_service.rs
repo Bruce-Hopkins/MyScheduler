@@ -2,7 +2,7 @@
 use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor};
 use tokio_stream::StreamExt;
 
-use crate::{models::tasks::{Task, CreateTask, WeekDay}, common::{errors::{AppErrors, AppResult}, dates::remove_hours_from_date}};
+use crate::{models::tasks::{Task, CreateTask, RoutineWeekDay}, common::{errors::{AppErrors, AppResult}, dates::remove_hours_from_date}};
 
 use super::base_service::BaseService;
 

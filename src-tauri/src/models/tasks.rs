@@ -40,7 +40,7 @@ impl Time {
     } 
 }
 
-pub enum WeekDay {
+pub enum RoutineWeekDay {
     Sunday,
     Monday,
     Tuesday,
@@ -50,16 +50,16 @@ pub enum WeekDay {
     Saturday,
 }
 
-impl WeekDay {
+impl RoutineWeekDay {
     pub fn to_str(&self) -> &str {
         match self {
-            WeekDay::Sunday => "sunday",
-            WeekDay::Monday => "monday",
-            WeekDay::Tuesday => "tuesday",
-            WeekDay::Wednesday => "wednesday",
-            WeekDay::Thursday => "thursday",
-            WeekDay::Friday => "friday",
-            WeekDay::Saturday => "saturday",
+            RoutineWeekDay::Sunday => "sunday",
+            RoutineWeekDay::Monday => "monday",
+            RoutineWeekDay::Tuesday => "tuesday",
+            RoutineWeekDay::Wednesday => "wednesday",
+            RoutineWeekDay::Thursday => "thursday",
+            RoutineWeekDay::Friday => "friday",
+            RoutineWeekDay::Saturday => "saturday",
         }
     }
 }

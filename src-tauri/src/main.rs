@@ -7,6 +7,8 @@ pub mod handlers;
 pub mod services;
 pub mod tests;
 pub mod common;
+pub mod app;
+
 
 use models::tasks::{Task, Time};
 use mongodb::{Collection, Database, options::ClientOptions, Client};

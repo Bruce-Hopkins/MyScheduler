@@ -11,6 +11,7 @@ pub struct Task {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     id: Option<ObjectId>,
     body: String,
+    status: String,
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     start_at: chrono::DateTime<Utc>,
@@ -22,6 +23,19 @@ pub struct Task {
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     created_at: chrono::DateTime<Utc>
+}
+
+impl Task {
+    fn into_res(self) -> TaskRes {
+        TaskRes { 
+            id: self.id.unwrap().to_hex(), 
+            body: self.body, 
+            start_time: Time::from_date(self.start_at), 
+            end_time: Time::from_date(self.end_at), 
+            colors: self.colors, 
+            type_task: String::from("task") 
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -38,6 +52,13 @@ impl Time {
         "minute": self.minute
        }
     } 
+
+    pub fn from_date(date: chrono::DateTime<Utc>) -> Time {
+        Self {
+            hour: date.hour() as i32,
+            minute: date.minute() as i32 
+        }
+    }
 }
 
 pub enum RoutineWeekDay {
@@ -91,6 +112,23 @@ impl CreateTask {
             Utc,
         );
 
-        Task { id: None, body: self.body, start_at: start_at_date, end_at: end_at_date, colors: self.colors, created_at: Utc::now() }
+        Task { 
+            id: None, 
+            body: self.body, 
+            start_at: start_at_date, 
+            end_at: end_at_date, 
+            colors: self.colors, 
+            created_at: Utc::now(),
+            status: String::from("active")
+        }
     }
+}
+
+pub struct TaskRes {
+    id: String,
+    body: String,
+    start_time: Time,
+    end_time: Time,
+    colors: String,
+    type_task: String
 }

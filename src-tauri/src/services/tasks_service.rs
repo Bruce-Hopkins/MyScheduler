@@ -33,6 +33,14 @@ impl TasksService {
         self.0.get_all_by(Some(doc)).await
     }
 
+    /**
+     * Updates the status of overdue tasks
+     */
+    pub async fn set_task_to_overdue(&self, id: &ObjectId ) -> AppResult<Vec<Task>> {
+        
+        todo!()
+    }
+
 
 
     /**

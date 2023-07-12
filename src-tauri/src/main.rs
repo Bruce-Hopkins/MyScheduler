@@ -10,6 +10,7 @@ pub mod common;
 pub mod app;
 
 
+use handlers::cron::CronTaskHandler;
 use models::tasks::{Task, Time};
 use mongodb::{Collection, Database, options::ClientOptions, Client};
 use services::tasks_service::TasksService;
@@ -101,7 +102,7 @@ impl EnvConfig {
     }
 }
 
-struct AppState {
+pub struct AppState {
     task_service: TasksService,
     test: String,
 }
@@ -148,6 +149,8 @@ async fn main() {
   
     let db = init_db().await;
     let state = AppState::new(&db).await;
+    let cron_task_handler = CronTaskHandler::new();
+    let cron_task_handler = Arc::new(Mutex::new(cron_task_handler));
 
     startup_script().await;
 

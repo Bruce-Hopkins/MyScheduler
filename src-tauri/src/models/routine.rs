@@ -7,16 +7,17 @@ use super::tasks::{Time, RoutineWeekDay};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Routine {
-        #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-        id: Option<ObjectId>,
-        body: String,
-        days_of_the_week: DaysOfTheWeek,
-        start_at: Time,
-        end_at: Time,
-        colors: String,
-        
-        #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
-        created_at: chrono::DateTime<Utc>
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    id: Option<ObjectId>,
+    body: String,
+    days_of_the_week: DaysOfTheWeek,
+    start_at: Time,
+    end_at: Time,
+    colors: String,
+    status: String,
+    
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    created_at: chrono::DateTime<Utc>
     
 }
 
@@ -32,7 +33,16 @@ pub struct CreateRoutine {
 
 impl CreateRoutine {
     pub fn into_model(self) -> Routine {
-        Routine { id: None, body: self.body, days_of_the_week: self.days_of_the_week, start_at: self.start_at, end_at: self.end_at, colors: self.colors, created_at: Utc::now() }
+        Routine { 
+            id: None, 
+            body: self.body, 
+            days_of_the_week: self.days_of_the_week, 
+            start_at: self.start_at, 
+            end_at: self.end_at, 
+            colors: self.colors, 
+            created_at: Utc::now() ,
+            status: String::from("active")
+        }
     }
 
     pub fn default_from_date(date: chrono::DateTime<Utc>) -> CreateRoutine {

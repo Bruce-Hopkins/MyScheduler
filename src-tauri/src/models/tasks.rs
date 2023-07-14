@@ -36,6 +36,10 @@ impl Task {
             type_task: String::from("task") 
         }
     }
+
+    pub fn end_at(&self) -> DateTime<Utc> {
+        self.end_at
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

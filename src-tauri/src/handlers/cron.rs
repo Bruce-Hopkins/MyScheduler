@@ -5,97 +5,91 @@ use chrono::{DateTime, Utc, Days, Timelike};
 use tokio::{time::sleep, sync::Mutex, task::JoinHandle};
 
 
-use crate::{common::dates::remove_hours_from_date, AppState, app, models::tasks::Time, handlers::cron};
+use crate::{common::dates::remove_hours_from_date, AppState, app, models::{tasks::{Time, Task}, routine::Routine}, handlers::cron};
 
 
-struct CronjobTask<T, F>
-    where F: FnOnce() -> T + std::marker::Send + 'static,
-    T: Future<Output = ()> + std::marker::Send + 'static{
-        callback: F,
+struct CronjobTask{
         end_date: DateTime<Utc>
 }
 
 
-struct CronjobRoutine<T, F>
-    where F: Fn() -> T + std::marker::Send + 'static,
-    T: Future<Output = ()> + std::marker::Send + 'static{
-        callback: F,
+struct CronjobRoutine{
         end_date: Time
 }
 
-enum Cronjob <T, F>
-where F: Fn() -> T + std::marker::Send + 'static,
-T: Future<Output = ()> + std::marker::Send + 'static {
-    Task(CronjobTask<T, F>),
-    Routine(CronjobRoutine<T, F>)
+enum Cronjob {
+    Task(CronjobTask),
+    Routine(CronjobRoutine)
 }
 
 
 
-pub struct CronjobHandler<F, T>(HashMap<String, Vec<Cronjob<T, F>>>) 
-    where F: Fn() -> T + std::marker::Send + 'static,
-    T: Future<Output = ()> + std::marker::Send + 'static;
+pub struct CronjobHandler(HashMap<String, Vec<Cronjob>>);
 
-impl <F, T> CronjobHandler<F, T> 
-    where F: Fn() -> T + std::marker::Send + 'static,
-    T: Future<Output = ()> + std::marker::Send + 'static
-{
-    pub fn add_task(&mut self, end_date: DateTime<Utc>, callback: F) -> () {
-        let key = format!("{}-{}", end_date.hour(), end_date.minute());
-        let cronjob_task = CronjobTask {
-            callback,
-            end_date
-        };
-        let cronjob = Cronjob::Task(cronjob_task);
-        self.add_cronjob(key, cronjob);
+impl CronjobHandler {
+    pub fn new() -> Self {
+        todo!()
+    }
+    pub fn add_task(&mut self, task: Task) -> () {
+        // let key = format!("{}-{}", end_date.hour(), end_date.minute());
+        // let cronjob_task = CronjobTask {
+        //     callback,
+        //     end_date
+        // };
+        // let cronjob = Cronjob::Task(cronjob_task);
+        // self.add_cronjob(key, cronjob);
+        todo!()
     }
 
-    pub fn add_routine(&mut self, end_date: Time, callback: F) -> () {
-        let key = format!("{}-{}", end_date.hour, end_date.minute);
-        let cronjob_task = CronjobRoutine {
-            callback,
-            end_date
-        };
-        let cronjob = Cronjob::Routine(cronjob_task);
-        self.add_cronjob(key, cronjob);
+    pub fn add_routine(&mut self, routine: Routine) -> () {
+        // let key = format!("{}-{}", end_date.hour, end_date.minute);
+        // let cronjob_task = CronjobRoutine {
+        //     callback,
+        //     end_date
+        // };
+        // let cronjob = Cronjob::Routine(cronjob_task);
+        // self.add_cronjob(key, cronjob);
+        todo!()
     }
 
-    fn add_cronjob(&mut self, key: String, cronjob: Cronjob<T,F>) {
-        match self.0.get_mut(&key) {
-            Some(value) => {
-                value.push(cronjob);
-            },
-            None => {
-                self.0.insert(key, vec![cronjob]);
-            },
-        }
+    fn add_cronjob(&mut self, key: String, cronjob: Cronjob) {
+        // match self.0.get_mut(&key) {
+        //     Some(value) => {
+        //         value.push(cronjob);
+        //     },
+        //     None => {
+        //         self.0.insert(key, vec![cronjob]);
+        //     },
+        // }
+        todo!()
     }
 
-    pub async fn run_cronjob(&mut self, minute: i32, hour: i32) -> Option<()> {
-        let key = format!("{minute}-{hour}");
-        let cronjobs = self.0.remove(&key)?;
+    pub async fn run_cronjob(&mut self, minute: u32, hour: u32, app_state: &Arc<AppState>) -> Option<()> {
+        // let key = format!("{minute}-{hour}");
+        // let cronjobs = self.0.remove(&key)?;
 
-        let mut continued_cronjobs = vec![];
-        for cronjob in cronjobs {
-            match cronjob {
-                Cronjob::Task(task) => {
-                    if task.end_date < Utc::now() {
-                        let func = task.callback;
-                        func().await;
-                    }
-                    else {
-                        continued_cronjobs.push(Cronjob::Task(task));
-                    }
-                },
-                Cronjob::Routine(routine) => {
-                    let func = &routine.callback;
-                    func().await;
-                    continued_cronjobs.push(Cronjob::Routine(routine));
-                },
-            }
-        } 
-        self.0.insert(key, continued_cronjobs);
-        Some(())
+        // let mut continued_cronjobs = vec![];
+        // for cronjob in cronjobs {
+        //     match cronjob {
+        //         Cronjob::Task(task) => {
+        //             if task.end_date < Utc::now() {
+        //                 let func = task.callback;
+        //                 func().await;
+        //             }
+        //             else {
+        //                 continued_cronjobs.push(Cronjob::Task(task));
+        //             }
+        //         },
+        //         Cronjob::Routine(routine) => {
+        //             let func = &routine.callback;
+        //             func().await;
+        //             continued_cronjobs.push(Cronjob::Routine(routine));
+        //         },
+        //     }
+        // } 
+        // self.0.insert(key, continued_cronjobs);
+        // Some(())
+        todo!()
     }
 
 }

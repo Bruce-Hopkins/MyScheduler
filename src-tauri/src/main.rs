@@ -10,12 +10,13 @@ pub mod common;
 pub mod app;
 
 
-use handlers::cron::CronTaskHandler;
-use models::tasks::{Task, Time};
+use chrono::{Utc, Timelike};
+use handlers::cron::CronjobHandler;
+use models::{tasks::{Task, Time}, routine::Routine};
 use mongodb::{Collection, Database, options::ClientOptions, Client};
-use services::tasks_service::TasksService;
+use services::{tasks_service::TasksService, routine_service::RoutineService};
 use tokio::sync::Mutex;
-use std::{env, sync::Arc};
+use std::{env, sync::Arc, time::Duration};
 pub struct EnvConfig {
     // App
     pub app_env: String,
@@ -104,6 +105,7 @@ impl EnvConfig {
 
 pub struct AppState {
     task_service: TasksService,
+    routine_service: RoutineService,
     test: String,
 }
 impl AppState {
@@ -120,15 +122,18 @@ impl AppState {
     async fn new(db: &Database) -> Self {
         let task_col = Self::start_collections(&db, "tasks").await;
         let task_service = TasksService::new(task_col);
+
+        let routine_col = Self::start_collections(&db, "routines").await;
+        let routine_service = RoutineService::new(routine_col);
         Self {
+            routine_service,
             task_service,
             test: "test".to_string()
         }
     }
 
-    fn into_arc(self) -> Arc<Mutex<Self>> {
-        let mutex = Mutex::new(self);
-        Arc::new(mutex)
+    fn into_arc(self) -> Arc<Self> {
+        Arc::new(self)
     }
 }
 
@@ -148,20 +153,50 @@ async fn startup_script() {
 async fn main() {
   
     let db = init_db().await;
-    let state = AppState::new(&db).await;
-    let cron_task_handler = CronTaskHandler::new();
+    let state = AppState::new(&db).await.into_arc();
+    let cron_task_handler = CronjobHandler::new();
     let cron_task_handler = Arc::new(Mutex::new(cron_task_handler));
 
     startup_script().await;
+    start_app(state.clone(), cron_task_handler.clone());
+    start_cron_job(state, cron_task_handler).await;
 
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![my_custom_command]) 
-        .manage(state.into_arc())
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
 }
 
+fn start_app(app_state: Arc<AppState>, cron_handler: Arc<Mutex<CronjobHandler>>) {
+    tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![my_custom_command]) 
+    .manage(app_state)
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
 
+async fn start_cron_job(app_state: Arc<AppState>, cron_handler: Arc<Mutex<CronjobHandler>>) {
+    tokio::spawn(async move {
+        let tasks = app_state.task_service.filter_by_day(Utc::now()).await.unwrap();
+        let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
+
+        add_tasks_for_cron_handler(tasks, routines, &cron_handler).await;
+        loop {
+            tokio::time::interval(Duration::from_secs(60)).tick().await;
+            check_if_cronjob_should_run(&cron_handler, &app_state).await;
+        }
+    });
+}
+
+async fn add_tasks_for_cron_handler(tasks: Vec<Task>, routines: Vec<Routine>, cron_handler: &Arc<Mutex<CronjobHandler>>) {
+    for task in tasks {
+        cron_handler.lock().await.add_task(task)
+    }
+    for routine in routines {
+        cron_handler.lock().await.add_routine(routine);
+    }
+}
+
+async fn check_if_cronjob_should_run(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
+    let now = Utc::now();
+    cron_handler.lock().await.run_cronjob(now.minute(), now.hour(), app_state).await;
+}
 
 pub async fn init_db() -> Database {
     let db_name = String::from("time-managing-app");

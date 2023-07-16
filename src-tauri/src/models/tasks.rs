@@ -40,6 +40,10 @@ impl Task {
     pub fn end_at(&self) -> DateTime<Utc> {
         self.end_at
     }
+
+    pub fn id(&self) -> &ObjectId {
+        &self.id
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

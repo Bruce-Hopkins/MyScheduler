@@ -21,6 +21,12 @@ pub struct Routine {
     
 }
 
+impl Routine {
+    pub fn end_at(&self) -> &Time {
+        &self.end_at
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct CreateRoutine {
         pub body: String,

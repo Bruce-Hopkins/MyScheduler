@@ -41,8 +41,15 @@ impl Task {
         self.end_at
     }
 
-    pub fn id(&self) -> &ObjectId {
-        &self.id
+    pub fn id(&self) -> ObjectId {
+       let id = &self.id.unwrap();
+       id.clone()
+    }
+}
+
+impl Default for Task {
+    fn default() -> Task {
+        Task { id: Some(ObjectId::default()), body: String::default(), status: String::default(), start_at: Utc::now(), end_at: Utc::now(), colors: String::default(), created_at: Utc::now() }
     }
 }
 

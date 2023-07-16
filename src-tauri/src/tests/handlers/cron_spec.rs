@@ -1,6 +1,6 @@
-use chrono::{Utc, Duration, Days, TimeZone};
+use chrono::{Utc, Duration, Days, TimeZone, Timelike};
 
-use crate::handlers::cron::milliseconds_between_dates;
+use crate::{handlers::cron::{milliseconds_between_dates, CronjobHandler}, models::tasks::Task};
 
 #[tokio::test]
 async fn milliseconds_between_should_be_accurate() {
@@ -10,5 +10,18 @@ async fn milliseconds_between_should_be_accurate() {
 
     // A full day in miliseconds
     assert_eq!(86400000, result);
-
 }
+
+#[tokio::test]
+async fn cron_handler_hours() {
+    let task = Task::default();
+
+    let time = task.end_at();
+    let mut cronhandler = CronjobHandler::new();
+
+    cronhandler.add_task(task);
+    let has_cronjob = cronhandler.contains_hours(time.minute(), time.hour()).await;
+
+    assert!(has_cronjob)
+}
+

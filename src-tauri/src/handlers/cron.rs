@@ -11,7 +11,7 @@ use crate::{common::dates::remove_hours_from_date, AppState, app, models::{tasks
 struct CronjobTask(Task);
 impl CronjobTask {
     async fn set_as_overdue(&self, app_state: &AppState) {
-        app_state.task_service.set_task_to_overdue(self.0.id()).await;
+        app_state.task_service.set_task_to_overdue(&self.0.id()).await;
     }
 }
 
@@ -33,7 +33,7 @@ pub struct CronjobHandler(HashMap<String, Vec<Cronjob>>);
 
 impl CronjobHandler {
     pub fn new() -> Self {
-        todo!()
+        Self(HashMap::new())
     }
     pub fn add_task(&mut self, task: Task) {
         let key = format!("{}-{}", task.end_at().hour(), task.end_at().minute());
@@ -60,8 +60,13 @@ impl CronjobHandler {
         }
     }
 
+    pub async fn contains_hours(&self, minute: u32, hour: u32) -> bool {
+        let key = format!("{hour}-{minute}");
+        self.0.contains_key(&key).clone()
+    }
+
     pub async fn run_cronjob(&mut self, minute: u32, hour: u32, app_state: &Arc<AppState>) -> Option<()> {
-        let key = format!("{minute}-{hour}");
+        let key = format!("{hour}-{minute}");
         let cronjobs = self.0.remove(&key)?;
 
         let mut continued_cronjobs = vec![];
@@ -128,23 +133,24 @@ pub fn milliseconds_between_dates(start:DateTime<Utc>,  end: DateTime<Utc>) -> i
     duration.num_milliseconds()
 }
 
-pub async fn crontask<F, T>(end: DateTime<Utc>, callback: F) 
-    where F: FnOnce() -> T,
-    T: Future<Output = T> + 'static {
 
+pub async fn add_cronjob_tasks(cron_handler:&Arc<Mutex<CronjobHandler>>, tasks: Vec<Task>) {
+    for task in tasks {
+        cron_handler.lock().await.add_task(task)
+    }
 }
 
-pub async fn end_of_day_scheduler(today: DateTime<Utc>, app_state: Arc<Mutex<AppState>>) {
-    let tomorrow = today.checked_add_days(Days::new(1)).unwrap();
-    let tomorrow = remove_hours_from_date(tomorrow).unwrap();
-    let miliseconds_left_in_day = milliseconds_between_dates(today, tomorrow);
+pub async fn add_cronjob_routines(cron_handler:&Arc<Mutex<CronjobHandler>>, tasks: Vec<Routine>) {
+    for task in tasks {
+        cron_handler.lock().await.add_routine(task)
+    }
+}
 
-    let handle = tokio::spawn(async {
-        // Do some async work
-        "return value"
-    });
-    sleep(Duration::from_millis(miliseconds_left_in_day as u64)).await;
 
-    // Find the tasks and routines in the app.
-
+pub async fn run_cronjobs(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
+    let now = Utc::now();
+    let mut cron_handler = cron_handler.lock().await; 
+    if cron_handler.contains_hours(now.minute(), now.hour()).await {
+        cron_handler.run_cronjob(now.minute(), now.hour(), app_state).await;
+    }
 }

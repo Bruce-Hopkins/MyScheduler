@@ -11,7 +11,7 @@ pub mod app;
 
 
 use chrono::{Utc, Timelike};
-use handlers::cron::CronjobHandler;
+use handlers::cron::{CronjobHandler,  add_cronjob_tasks, run_cronjobs};
 use models::{tasks::{Task, Time}, routine::Routine};
 use mongodb::{Collection, Database, options::ClientOptions, Client};
 use services::{tasks_service::TasksService, routine_service::RoutineService};
@@ -176,27 +176,15 @@ async fn start_cron_job(app_state: Arc<AppState>, cron_handler: Arc<Mutex<Cronjo
         let tasks = app_state.task_service.filter_by_day(Utc::now()).await.unwrap();
         let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
 
-        add_tasks_for_cron_handler(tasks, routines, &cron_handler).await;
+        add_cronjob_tasks(&cron_handler, tasks).await;
         loop {
             tokio::time::interval(Duration::from_secs(60)).tick().await;
-            check_if_cronjob_should_run(&cron_handler, &app_state).await;
+            run_cronjobs(&cron_handler, &app_state).await;
         }
     });
 }
 
-async fn add_tasks_for_cron_handler(tasks: Vec<Task>, routines: Vec<Routine>, cron_handler: &Arc<Mutex<CronjobHandler>>) {
-    for task in tasks {
-        cron_handler.lock().await.add_task(task)
-    }
-    for routine in routines {
-        cron_handler.lock().await.add_routine(routine);
-    }
-}
 
-async fn check_if_cronjob_should_run(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
-    let now = Utc::now();
-    cron_handler.lock().await.run_cronjob(now.minute(), now.hour(), app_state).await;
-}
 
 pub async fn init_db() -> Database {
     let db_name = String::from("time-managing-app");

@@ -1,7 +1,7 @@
 use chrono::Utc;
 use mongodb::{Database, Collection, bson::oid::ObjectId};
 
-use crate::{services::{tasks_service::{TasksService, self}, routine_service::RoutineService}, models::{tasks::{Task, CreateTask}, routine::CreateRoutine}, init_db, common::errors::AppResult};
+use crate::{services::{tasks_service::{TasksService, self}, routine_service::RoutineService}, models::{tasks::{Task, CreateTask}, routine::CreateRoutine}, init_db, common::errors::DBResult};
 
 mod handlers;
 mod services;
@@ -34,13 +34,13 @@ impl TestBuilder {
         }
     }
 
-    pub async fn create_task(&self) -> AppResult<ObjectId> {
+    pub async fn create_task(&self) -> DBResult<ObjectId> {
         let create_task = CreateTask::default();
         let id = self.services.task_service.create(create_task).await?;
         Ok(id.inserted_id.as_object_id().unwrap())
     }
 
-    pub async fn create_routine(&self) -> AppResult<ObjectId> {
+    pub async fn create_routine(&self) -> DBResult<ObjectId> {
         let create_routine = CreateRoutine::default_from_date(Utc::now());
         println!("The routine is: {:?}", create_routine);
 

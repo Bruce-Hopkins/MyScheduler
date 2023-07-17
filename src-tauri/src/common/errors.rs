@@ -2,7 +2,7 @@ use mongodb::error::Error;
 
 
 #[derive(Debug, thiserror::Error)]
-pub enum AppErrors {
+pub enum DBErrors {
     #[error("Data was not found")]
     NotFound,
     #[error("The value inputed is incorrect")]
@@ -13,13 +13,13 @@ pub enum AppErrors {
     InternalError(String),
 }
 
-impl AppErrors {
+impl DBErrors {
     pub fn into_string(&self) -> String {
         match &self {
-            AppErrors::NotFound => String::from("Value was not found"),
-            AppErrors::IncorrectInput(e) => format!("The input is incorrect: {e}"),
-            AppErrors::NoResults => String::from("No results"),
-            AppErrors::InternalError(e) => format!("Internal error: {e}"),
+            DBErrors::NotFound => String::from("Value was not found"),
+            DBErrors::IncorrectInput(e) => format!("The input is incorrect: {e}"),
+            DBErrors::NoResults => String::from("No results"),
+            DBErrors::InternalError(e) => format!("Internal error: {e}"),
         }
     }
 
@@ -31,4 +31,4 @@ impl AppErrors {
     }
 }
 
-pub type AppResult<T> = Result<T, AppErrors>; 
+pub type DBResult<T> = Result<T, DBErrors>; 

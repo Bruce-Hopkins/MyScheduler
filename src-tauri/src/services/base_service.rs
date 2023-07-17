@@ -2,7 +2,7 @@ use bson::{oid::ObjectId, doc, Document};
 use mongodb::{Collection, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor, options::FindOptions};
 use serde::{Serialize, de::DeserializeOwned};
 
-use crate::{common::errors::{AppResult, AppErrors}, models::tasks::Task};
+use crate::{common::errors::{DBResult, DBErrors}, models::tasks::Task};
 use tokio_stream::StreamExt;
 
 
@@ -20,44 +20,44 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         }
     }
 
-    pub async fn create(&self, create_model: &T) -> AppResult<InsertOneResult> {
+    pub async fn create(&self, create_model: &T) -> DBResult<InsertOneResult> {
         let result = self.collection.insert_one(create_model, None).await;
         match result {
             Ok(r) => Ok(r),
-            Err(e) => Err(AppErrors::InternalError(format!("Failed to create a new task: {}", e.to_string())))
+            Err(e) => Err(DBErrors::InternalError(format!("Failed to create a new task: {}", e.to_string())))
         }
     }
 
-    pub async fn get_one_by_id(&self, id: &ObjectId) -> AppResult<T> {
+    pub async fn get_one_by_id(&self, id: &ObjectId) -> DBResult<T> {
         let doc = doc! {"_id": id};
         self.get_one(doc).await
     }
 
-    pub async fn get_one(&self, filter: Document) -> AppResult<T> {
+    pub async fn get_one(&self, filter: Document) -> DBResult<T> {
         let data = self.collection.find_one(filter, None).await;
 
         let error_message = format!("Could not run find query on the data: {}", self.name);
-        let data = AppErrors::from_unknown_result(data, &error_message)?;
+        let data = DBErrors::from_unknown_result(data, &error_message)?;
         match data {
             Some(v) => Ok(v),
-            None => Err(AppErrors::NotFound)
+            None => Err(DBErrors::NotFound)
         }
     }
 
 
-    pub async fn get_all_by_and_sort(&self, doc: Option<Document>, sort: Document) -> AppResult<Vec<T>> {
+    pub async fn get_all_by_and_sort(&self, doc: Option<Document>, sort: Document) -> DBResult<Vec<T>> {
         let find_options = FindOptions::builder().sort(sort).build();
         let cursor = self.collection.find(doc, find_options).await;
 
 
-        let cursor = AppErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
+        let cursor = DBErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
         self.process_cursor(cursor).await
     }
 
     pub async fn process_cursor(
         &self,
         mut cursor: Cursor<T>,
-    ) -> AppResult<Vec<T>> {
+    ) -> DBResult<Vec<T>> {
         let mut response_vec: Vec<T> = Vec::new();
 
         while let Some(result) = cursor.next().await {
@@ -65,21 +65,21 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
                 Ok(doc) => {
                     response_vec.push(doc);
                 }
-                Err(e) => return Err(AppErrors::InternalError(e.to_string())),
+                Err(e) => return Err(DBErrors::InternalError(e.to_string())),
             }
         }
 
         if response_vec.is_empty() {
-            return Err(AppErrors::NoResults)
+            return Err(DBErrors::NoResults)
         }
         Ok(response_vec)
     }
 
-    pub async fn get_all_by(&self, doc: Option<Document>) -> AppResult<Vec<T>> {
+    pub async fn get_all_by(&self, doc: Option<Document>) -> DBResult<Vec<T>> {
         let cursor = self.collection.find(doc, None).await;
 
 
-        let cursor = AppErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
+        let cursor = DBErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
         self.process_cursor(cursor).await
     }
 
@@ -87,10 +87,10 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         &self,
         filter: Document,
         fields: Document,
-    ) -> AppResult<UpdateResult> {
+    ) -> DBResult<UpdateResult> {
         let doc = doc! {"$set": fields};
         match self.collection.update_one(filter, doc, None).await {
-            Err(err) => Err(AppErrors::InternalError(err.to_string())),
+            Err(err) => Err(DBErrors::InternalError(err.to_string())),
             Ok(result) => Ok(result),
         }
     }
@@ -99,7 +99,7 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         &self,
         id: &ObjectId,
         fields: Document,
-    ) -> AppResult<UpdateResult> {
+    ) -> DBResult<UpdateResult> {
         let filter = doc! {"_id": id};
         self.update_by_doc(filter, fields).await
     }
@@ -107,10 +107,10 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
     pub async fn delete_by_id(
         &self,
         id: &ObjectId,
-    )  -> AppResult<DeleteResult> {
+    )  -> DBResult<DeleteResult> {
         let filter = doc! {"_id": id};
         match self.collection.delete_one(filter, None).await {
-            Err(err) => Err(AppErrors::InternalError(err.to_string())),
+            Err(err) => Err(DBErrors::InternalError(err.to_string())),
             Ok(result) => Ok(result),
         }
     }

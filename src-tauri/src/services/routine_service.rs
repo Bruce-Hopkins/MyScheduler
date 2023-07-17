@@ -2,7 +2,7 @@ use bson::{oid::ObjectId, doc};
 use chrono::{Utc, Datelike};
 use mongodb::{Collection, results::{InsertOneResult, DeleteResult, UpdateResult}};
 
-use crate::{models::routine::{Routine, CreateRoutine, DaysOfTheWeek, week_day_from_str}, common::errors::AppResult};
+use crate::{models::routine::{Routine, CreateRoutine, DaysOfTheWeek, week_day_from_str}, common::errors::DBResult};
 
 use super::base_service::BaseService;
 
@@ -14,7 +14,7 @@ impl RoutineService {
         Self(BaseService::new(collection, "routine".to_string()))
     }
 
-    pub async fn create(&self, create_routine: CreateRoutine) -> AppResult<InsertOneResult> {
+    pub async fn create(&self, create_routine: CreateRoutine) -> DBResult<InsertOneResult> {
         let task = create_routine.into_model();
 
         self.0.create(&task).await
@@ -24,7 +24,7 @@ impl RoutineService {
     /** 
         Get's all the tasks based on the day passed 
     */
-    pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> AppResult<Vec<Routine>> {
+    pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<Vec<Routine>> {
         let week_day = date.weekday();
         let week_str = week_day_from_str(week_day);
 
@@ -41,7 +41,7 @@ impl RoutineService {
     /**
      * Get's all the routines and sorts by the time the tasks will happen
      */
-    pub async fn get_my_tasks(&self) -> AppResult<Vec<Routine>> {
+    pub async fn get_my_tasks(&self) -> DBResult<Vec<Routine>> {
         let sort = doc! {"created_at": 1};
         self.0.get_all_by_and_sort(None, sort).await
     }
@@ -49,14 +49,14 @@ impl RoutineService {
     /**
      * Get's the Routine by the id passed
      */
-    pub async fn find_by_id(&self, id: &ObjectId) -> AppResult<Routine> {
+    pub async fn find_by_id(&self, id: &ObjectId) -> DBResult<Routine> {
         self.0.get_one_by_id(&id).await
     }
 
     /**
      * Updates the entry based on the id passed
      */
-    pub async fn update_by_id(&self, id:&ObjectId, create_routine: CreateRoutine) -> AppResult<UpdateResult>{
+    pub async fn update_by_id(&self, id:&ObjectId, create_routine: CreateRoutine) -> DBResult<UpdateResult>{
 
         let doc = doc! {
             "body": create_routine.body,
@@ -70,11 +70,11 @@ impl RoutineService {
     /**
      * Deleted the entry based on the id passed.
      */
-    pub async fn delete_by_id(&self, id:&ObjectId) -> AppResult<DeleteResult> {
+    pub async fn delete_by_id(&self, id:&ObjectId) -> DBResult<DeleteResult> {
         self.0.delete_by_id(id).await
     }
 
-    pub async fn get_by_id(&self, id: &ObjectId) -> AppResult<Routine> {
+    pub async fn get_by_id(&self, id: &ObjectId) -> DBResult<Routine> {
         self.0.get_one_by_id(id).await
     }
 }

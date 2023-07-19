@@ -25,15 +25,27 @@ pub struct Task {
     created_at: chrono::DateTime<Utc>
 }
 
+pub struct TaskRes {
+    id: String,
+    body: String,
+    status: String,
+    start_at: String,
+    end_at: String,
+    color: String,
+    created_at: String,
+}
+
 impl Task {
     fn into_res(self) -> TaskRes {
-        TaskRes { 
+        TaskRes {
+            
             id: self.id.unwrap().to_hex(), 
             body: self.body, 
-            start_time: Time::from_date(self.start_at), 
-            end_time: Time::from_date(self.end_at), 
-            colors: self.colors, 
-            type_task: String::from("task") 
+            start_at: self.start_at.to_rfc3339(), 
+            end_at: self.start_at.to_rfc3339(), 
+            color: self.colors,
+            status: self.status,
+            created_at: self.created_at.to_rfc3339(), 
         }
     }
 
@@ -137,13 +149,4 @@ impl CreateTask {
             status: String::from("active")
         }
     }
-}
-
-pub struct TaskRes {
-    id: String,
-    body: String,
-    start_time: Time,
-    end_time: Time,
-    colors: String,
-    type_task: String
 }

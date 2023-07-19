@@ -3,15 +3,40 @@
   import viteLogo from "/vite.svg";
   import Counter from "./lib/Counter.svelte";
   import { invoke } from "@tauri-apps/api";
+  import type { TaskCreate, TaskRes } from "./lib/types/tasks";
   // When using the Tauri global script (if not using the npm package)
+  let tasks: TaskRes[] = [];
+  async function get_tasks() {
+    // Invoke the command
+    tasks = await invoke("app_get_all_tasks");
+    console.log("tasks are", tasks);
+  }
 
-  // Invoke the command
-  invoke("my_custom_command", { time: { hour: 10, minute: 30 } })
-    .then((result) => alert(result))
-    .catch((e) => console.error(e));
+  // async function create_task() {
+  //   const task: TaskCreate = {
+  //     body: "do something at a certain time",
+  //     start_at: new Date().toISOString(),
+  //     end_at: new Date().toISOString(),
+  //     colors: "#A3D9FF",
+  //   };
+
+  //   const result = await invoke("app_create_task", { task: task });
+  //   console.log(result);
+  // }
+  // create_task();
+  get_tasks().catch((e) => {
+    console.error(e);
+  });
+  // console.log(tasks);
 </script>
 
 <main>
+  <h1>Hey</h1>
+  {#each tasks as task}
+    <div class="item">
+      <div class="name">{task.body}</div>
+    </div>
+  {/each}
   <div>
     <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
       <img src={viteLogo} class="logo" alt="Vite Logo" />

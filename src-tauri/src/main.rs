@@ -108,6 +108,7 @@ impl EnvConfig {
 pub struct AppState {
     task_service: TasksService,
     routine_service: RoutineService,
+    cron_handler: Arc<Mutex<CronjobHandler>>,
     test: String,
 }
 impl AppState {
@@ -127,9 +128,13 @@ impl AppState {
 
         let routine_col = Self::start_collections(&db, "routines").await;
         let routine_service = RoutineService::new(routine_col);
+
+        let cron_task_handler = CronjobHandler::new();
+        let cron_task_handler = Arc::new(Mutex::new(cron_task_handler));
         Self {
             routine_service,
             task_service,
+            cron_handler: cron_task_handler,
             test: "test".to_string()
         }
     }
@@ -142,46 +147,45 @@ impl AppState {
 
 
 #[tauri::command]
-async fn my_custom_command(state: tauri::State<'_, Arc<Mutex<AppState>>>, time: Time) -> Result<String, String> {
-    let test = &state.lock().await.test;
+async fn my_custom_command(app_state: tauri::State<'_, Arc<AppState>>, time: Time) -> Result<String, String> {
+    let test = &app_state.test;
     Ok(format!("{}:{}. Test:{}", time.hour, time.minute, test))
 }
 
 async fn startup_script() {
     
 }
-
+    
 #[tokio::main]
 async fn main() {
   
     let db = init_db().await;
     let state = AppState::new(&db).await.into_arc();
-    let cron_task_handler = CronjobHandler::new();
-    let cron_task_handler = Arc::new(Mutex::new(cron_task_handler));
+
 
     startup_script().await;
-    start_app(state.clone(), cron_task_handler.clone());
-    start_cron_job(state, cron_task_handler).await;
+    start_app(state.clone());
+    start_cron_job(state).await;
 
 }
 
-fn start_app(app_state: Arc<AppState>, cron_handler: Arc<Mutex<CronjobHandler>>) {
+fn start_app(app_state: Arc<AppState>) {
     tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![app_get_tasks_by_day, app_get_all_tasks, app_get_task_by_id, app_edit_task, app_delete_task, app_create_task]) 
     .manage(app_state)
+    .invoke_handler(tauri::generate_handler![my_custom_command,app_get_tasks_by_day, app_get_all_tasks, app_get_task_by_id, app_edit_task, app_delete_task, app_create_task]) 
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
-async fn start_cron_job(app_state: Arc<AppState>, cron_handler: Arc<Mutex<CronjobHandler>>) {
+async fn start_cron_job(app_state: Arc<AppState>) {
     tokio::spawn(async move {
         let tasks = app_state.task_service.filter_by_day(Utc::now()).await.unwrap();
-        let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
+        // let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
 
-        add_cronjob_tasks(&cron_handler, tasks).await;
+        add_cronjob_tasks(&app_state.cron_handler, tasks).await;
         loop {
             tokio::time::interval(Duration::from_secs(60)).tick().await;
-            run_cronjobs(&cron_handler, &app_state).await;
+            run_cronjobs(&app_state.cron_handler, &app_state).await;
         }
     });
 }

@@ -17,6 +17,8 @@ use mongodb::{Collection, Database, options::ClientOptions, Client};
 use services::{tasks_service::TasksService, routine_service::RoutineService};
 use tokio::sync::Mutex;
 use std::{env, sync::Arc, time::Duration};
+
+use crate::app::tasks_app::*;
 pub struct EnvConfig {
     // App
     pub app_env: String,
@@ -165,7 +167,7 @@ async fn main() {
 
 fn start_app(app_state: Arc<AppState>, cron_handler: Arc<Mutex<CronjobHandler>>) {
     tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![my_custom_command]) 
+    .invoke_handler(tauri::generate_handler![app_get_tasks_by_day, app_get_all_tasks, app_get_task_by_id, app_edit_task, app_delete_task, app_create_task]) 
     .manage(app_state)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

@@ -2,31 +2,20 @@
   import svelteLogo from "./assets/svelte.svg";
   import viteLogo from "/vite.svg";
   import Counter from "./lib/Counter.svelte";
-  import { invoke } from "@tauri-apps/api";
   import type { TaskCreate, TaskRes } from "./lib/types/tasks";
+  import { get_all_tasks } from "./lib/api/tasks-api";
   // When using the Tauri global script (if not using the npm package)
+
   let tasks: TaskRes[] = [];
   async function get_tasks() {
-    // Invoke the command
-    tasks = await invoke("app_get_all_tasks");
-    console.log("tasks are", tasks);
+    tasks = await get_all_tasks();
   }
+  get_tasks();
 
-  // async function create_task() {
-  //   const task: TaskCreate = {
-  //     body: "do something at a certain time",
-  //     start_at: new Date().toISOString(),
-  //     end_at: new Date().toISOString(),
-  //     colors: "#A3D9FF",
-  //   };
-
-  //   const result = await invoke("app_create_task", { task: task });
   //   console.log(result);
   // }
   // create_task();
-  get_tasks().catch((e) => {
-    console.error(e);
-  });
+
   // console.log(tasks);
 </script>
 

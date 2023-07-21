@@ -92,7 +92,7 @@ pub async fn app_create_task(
 ) -> Result<String, String> {
     let result = state.task_service.create(task).await;
     match result {
-        Ok(value) => Ok(value.inserted_id.to_string()),
+        Ok(value) => Ok(value.inserted_id.as_object_id().unwrap().to_hex()),
         Err(e) => Err(e.to_string()),
     }
 }

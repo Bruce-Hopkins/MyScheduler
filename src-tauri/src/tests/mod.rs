@@ -1,14 +1,25 @@
 use chrono::Utc;
-use mongodb::{Database, Collection, bson::oid::ObjectId};
+use mongodb::{bson::oid::ObjectId, Collection, Database};
 
-use crate::{services::{tasks_service::{TasksService, self}, routine_service::RoutineService}, models::{tasks::{Task, CreateTask}, routine::CreateRoutine}, init_db, common::errors::DBResult};
+use crate::{
+    common::errors::DBResult,
+    init_db,
+    models::{
+        routine::CreateRoutine,
+        tasks::{CreateTask, Task},
+    },
+    services::{
+        routine_service::RoutineService,
+        tasks_service::{self, TasksService},
+    },
+};
 
 mod handlers;
 mod services;
 
 struct TestServices {
     task_service: TasksService,
-    routine_service: RoutineService
+    routine_service: RoutineService,
 }
 
 struct TestBuilder {
@@ -29,9 +40,7 @@ impl TestBuilder {
             task_service,
             routine_service,
         };
-        Self {
-            services
-        }
+        Self { services }
     }
 
     pub async fn create_task(&self) -> DBResult<ObjectId> {
@@ -51,7 +60,7 @@ impl TestBuilder {
 
 /**
  * Creates a collection for testing.
- * 
+ *
  * Side effect: drops the previous collection of that name
  */
 pub async fn test_collection<T>(db: &Database, col_name: &str) -> Collection<T> {
@@ -62,4 +71,3 @@ pub async fn test_collection<T>(db: &Database, col_name: &str) -> Collection<T> 
         .expect("could not drop collection");
     db.collection(col_name)
 }
-

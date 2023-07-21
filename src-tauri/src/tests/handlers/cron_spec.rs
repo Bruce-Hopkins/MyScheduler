@@ -1,6 +1,9 @@
-use chrono::{Utc, Duration, Days, TimeZone, Timelike};
+use chrono::{Days, Duration, TimeZone, Timelike, Utc};
 
-use crate::{handlers::cron::{milliseconds_between_dates, CronjobHandler}, models::tasks::Task};
+use crate::{
+    handlers::cron::{milliseconds_between_dates, CronjobHandler},
+    models::tasks::Task,
+};
 
 #[tokio::test]
 async fn milliseconds_between_should_be_accurate() {
@@ -24,4 +27,3 @@ async fn cron_handler_hours() {
 
     assert!(has_cronjob)
 }
-

@@ -1,6 +1,5 @@
 use mongodb::error::Error;
 
-
 #[derive(Debug, thiserror::Error)]
 pub enum DBErrors {
     #[error("Data was not found")]
@@ -26,9 +25,11 @@ impl DBErrors {
     pub fn from_unknown_result<T>(result: Result<T, Error>, message: &str) -> Result<T, Self> {
         match result {
             Ok(v) => Ok(v),
-            Err(e) => Err(Self::InternalError(format!("Something went wrong: {message}")))
+            Err(e) => Err(Self::InternalError(format!(
+                "Something went wrong: {message}"
+            ))),
         }
     }
 }
 
-pub type DBResult<T> = Result<T, DBErrors>; 
+pub type DBResult<T> = Result<T, DBErrors>;

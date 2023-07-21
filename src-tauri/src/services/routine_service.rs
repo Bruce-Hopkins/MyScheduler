@@ -1,11 +1,16 @@
-use bson::{oid::ObjectId, doc};
-use chrono::{Utc, Datelike};
-use mongodb::{Collection, results::{InsertOneResult, DeleteResult, UpdateResult}};
+use bson::{doc, oid::ObjectId};
+use chrono::{Datelike, Utc};
+use mongodb::{
+    results::{DeleteResult, InsertOneResult, UpdateResult},
+    Collection,
+};
 
-use crate::{models::routine::{Routine, CreateRoutine, DaysOfTheWeek, week_day_from_str}, common::errors::DBResult};
+use crate::{
+    common::errors::DBResult,
+    models::routine::{week_day_from_str, CreateRoutine, DaysOfTheWeek, Routine},
+};
 
 use super::base_service::BaseService;
-
 
 // TODO: Refactor common methods into a trait
 pub struct RoutineService(BaseService<Routine>);
@@ -20,9 +25,8 @@ impl RoutineService {
         self.0.create(&task).await
     }
 
-
-    /** 
-        Get's all the tasks based on the day passed 
+    /**
+        Get's all the tasks based on the day passed
     */
     pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<Vec<Routine>> {
         let week_day = date.weekday();
@@ -35,8 +39,6 @@ impl RoutineService {
 
         self.0.get_all_by(Some(filter)).await
     }
-
-
 
     /**
      * Get's all the routines and sorts by the time the tasks will happen
@@ -56,8 +58,11 @@ impl RoutineService {
     /**
      * Updates the entry based on the id passed
      */
-    pub async fn update_by_id(&self, id:&ObjectId, create_routine: CreateRoutine) -> DBResult<UpdateResult>{
-
+    pub async fn update_by_id(
+        &self,
+        id: &ObjectId,
+        create_routine: CreateRoutine,
+    ) -> DBResult<UpdateResult> {
         let doc = doc! {
             "body": create_routine.body,
             "start_at": create_routine.start_at.to_bson(),
@@ -70,7 +75,7 @@ impl RoutineService {
     /**
      * Deleted the entry based on the id passed.
      */
-    pub async fn delete_by_id(&self, id:&ObjectId) -> DBResult<DeleteResult> {
+    pub async fn delete_by_id(&self, id: &ObjectId) -> DBResult<DeleteResult> {
         self.0.delete_by_id(id).await
     }
 

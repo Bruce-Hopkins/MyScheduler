@@ -1,9 +1,9 @@
-use chrono::{Utc, Datelike};
+use chrono::Weekday;
+use chrono::{Datelike, Utc};
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-use chrono::{Weekday};
 
-use super::tasks::{Time, RoutineWeekDay};
+use super::tasks::{RoutineWeekDay, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Routine {
@@ -15,10 +15,9 @@ pub struct Routine {
     end_at: Time,
     colors: String,
     status: String,
-    
+
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
-    created_at: chrono::DateTime<Utc>
-    
+    created_at: chrono::DateTime<Utc>,
 }
 
 impl Routine {
@@ -29,25 +28,25 @@ impl Routine {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct CreateRoutine {
-        pub body: String,
-        pub days_of_the_week: DaysOfTheWeek,
-        pub time: Time,
-        pub colors: String,
-        pub start_at: Time,
-        pub end_at: Time,
+    pub body: String,
+    pub days_of_the_week: DaysOfTheWeek,
+    pub time: Time,
+    pub colors: String,
+    pub start_at: Time,
+    pub end_at: Time,
 }
 
 impl CreateRoutine {
     pub fn into_model(self) -> Routine {
-        Routine { 
-            id: None, 
-            body: self.body, 
-            days_of_the_week: self.days_of_the_week, 
-            start_at: self.start_at, 
-            end_at: self.end_at, 
-            colors: self.colors, 
-            created_at: Utc::now() ,
-            status: String::from("active")
+        Routine {
+            id: None,
+            body: self.body,
+            days_of_the_week: self.days_of_the_week,
+            start_at: self.start_at,
+            end_at: self.end_at,
+            colors: self.colors,
+            created_at: Utc::now(),
+            status: String::from("active"),
         }
     }
 
@@ -86,7 +85,6 @@ impl DaysOfTheWeek {
         }
 
         days_of_the_week
-
     }
 }
 

@@ -1,5 +1,5 @@
-use bson::{Document, doc};
-use chrono::{Date, Utc, DateTime, TimeZone, Datelike, Timelike, Days};
+use bson::{doc, Document};
+use chrono::{Date, DateTime, Datelike, Days, TimeZone, Timelike, Utc};
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
@@ -22,7 +22,7 @@ pub struct Task {
     colors: String,
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
-    created_at: chrono::DateTime<Utc>
+    created_at: chrono::DateTime<Utc>,
 }
 
 pub struct TaskRes {
@@ -38,14 +38,13 @@ pub struct TaskRes {
 impl Task {
     fn into_res(self) -> TaskRes {
         TaskRes {
-            
-            id: self.id.unwrap().to_hex(), 
-            body: self.body, 
-            start_at: self.start_at.to_rfc3339(), 
-            end_at: self.start_at.to_rfc3339(), 
+            id: self.id.unwrap().to_hex(),
+            body: self.body,
+            start_at: self.start_at.to_rfc3339(),
+            end_at: self.start_at.to_rfc3339(),
             color: self.colors,
             status: self.status,
-            created_at: self.created_at.to_rfc3339(), 
+            created_at: self.created_at.to_rfc3339(),
         }
     }
 
@@ -54,14 +53,22 @@ impl Task {
     }
 
     pub fn id(&self) -> ObjectId {
-       let id = &self.id.unwrap();
-       id.clone()
+        let id = &self.id.unwrap();
+        id.clone()
     }
 }
 
 impl Default for Task {
     fn default() -> Task {
-        Task { id: Some(ObjectId::default()), body: String::default(), status: String::default(), start_at: Utc::now(), end_at: Utc::now(), colors: String::default(), created_at: Utc::now() }
+        Task {
+            id: Some(ObjectId::default()),
+            body: String::default(),
+            status: String::default(),
+            start_at: Utc::now(),
+            end_at: Utc::now(),
+            colors: String::default(),
+            created_at: Utc::now(),
+        }
     }
 }
 
@@ -69,21 +76,21 @@ impl Default for Task {
 
 pub struct Time {
     pub hour: i32,
-    pub minute: i32
+    pub minute: i32,
 }
 
 impl Time {
     pub fn to_bson(self) -> Document {
-       doc! {
-        "hour": self.hour,
-        "minute": self.minute
-       }
-    } 
+        doc! {
+         "hour": self.hour,
+         "minute": self.minute
+        }
+    }
 
     pub fn from_date(date: chrono::DateTime<Utc>) -> Time {
         Self {
             hour: date.hour() as i32,
-            minute: date.minute() as i32 
+            minute: date.minute() as i32,
         }
     }
 }
@@ -123,30 +130,39 @@ pub struct CreateTask {
 
 impl Default for CreateTask {
     fn default() -> Self {
-        Self { body: String::new(), start_at: Utc::now().to_rfc3339(), end_at: Utc::now().to_rfc3339(), colors: String::from("#A3D9FF") }
+        Self {
+            body: String::new(),
+            start_at: Utc::now().to_rfc3339(),
+            end_at: Utc::now().to_rfc3339(),
+            colors: String::from("#A3D9FF"),
+        }
     }
 }
 
 impl CreateTask {
     pub fn into_model(self) -> Task {
-        let start_at_date =  DateTime::<Utc>::from_utc(
-            DateTime::parse_from_rfc3339(&self.start_at).unwrap().naive_utc(),
+        let start_at_date = DateTime::<Utc>::from_utc(
+            DateTime::parse_from_rfc3339(&self.start_at)
+                .unwrap()
+                .naive_utc(),
             Utc,
         );
 
         let end_at_date = DateTime::<Utc>::from_utc(
-            DateTime::parse_from_rfc3339(&self.end_at).unwrap().naive_utc(),
+            DateTime::parse_from_rfc3339(&self.end_at)
+                .unwrap()
+                .naive_utc(),
             Utc,
         );
 
-        Task { 
-            id: None, 
-            body: self.body, 
-            start_at: start_at_date, 
-            end_at: end_at_date, 
-            colors: self.colors, 
+        Task {
+            id: None,
+            body: self.body,
+            start_at: start_at_date,
+            end_at: end_at_date,
+            colors: self.colors,
             created_at: Utc::now(),
-            status: String::from("active")
+            status: String::from("active"),
         }
     }
 }

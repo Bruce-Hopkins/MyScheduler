@@ -1,30 +1,37 @@
-use bson::{oid::ObjectId, doc, Document};
-use mongodb::{Collection, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor, options::FindOptions};
-use serde::{Serialize, de::DeserializeOwned};
+use bson::{doc, oid::ObjectId, Document};
+use mongodb::{
+    options::FindOptions,
+    results::{DeleteResult, InsertOneResult, UpdateResult},
+    Collection, Cursor,
+};
+use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{common::errors::{DBResult, DBErrors}, models::tasks::Task};
+use crate::{
+    common::errors::{DBErrors, DBResult},
+    models::tasks::Task,
+};
 use tokio_stream::StreamExt;
 
-
-pub struct BaseService<T>{
+pub struct BaseService<T> {
     pub collection: Collection<T>,
-    name: String
+    name: String,
 }
-impl<T> BaseService<T> 
-where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
-
-    pub fn new(collection:  Collection<T>, name: String) -> Self {
-        Self {
-            collection,
-            name
-        }
+impl<T> BaseService<T>
+where
+    T: DeserializeOwned + Unpin + Send + Sync + Serialize,
+{
+    pub fn new(collection: Collection<T>, name: String) -> Self {
+        Self { collection, name }
     }
 
     pub async fn create(&self, create_model: &T) -> DBResult<InsertOneResult> {
         let result = self.collection.insert_one(create_model, None).await;
         match result {
             Ok(r) => Ok(r),
-            Err(e) => Err(DBErrors::InternalError(format!("Failed to create a new task: {}", e.to_string())))
+            Err(e) => Err(DBErrors::InternalError(format!(
+                "Failed to create a new task: {}",
+                e.to_string()
+            ))),
         }
     }
 
@@ -40,24 +47,23 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         let data = DBErrors::from_unknown_result(data, &error_message)?;
         match data {
             Some(v) => Ok(v),
-            None => Err(DBErrors::NotFound)
+            None => Err(DBErrors::NotFound),
         }
     }
 
-
-    pub async fn get_all_by_and_sort(&self, doc: Option<Document>, sort: Document) -> DBResult<Vec<T>> {
+    pub async fn get_all_by_and_sort(
+        &self,
+        doc: Option<Document>,
+        sort: Document,
+    ) -> DBResult<Vec<T>> {
         let find_options = FindOptions::builder().sort(sort).build();
         let cursor = self.collection.find(doc, find_options).await;
-
 
         let cursor = DBErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
         self.process_cursor(cursor).await
     }
 
-    pub async fn process_cursor(
-        &self,
-        mut cursor: Cursor<T>,
-    ) -> DBResult<Vec<T>> {
+    pub async fn process_cursor(&self, mut cursor: Cursor<T>) -> DBResult<Vec<T>> {
         let mut response_vec: Vec<T> = Vec::new();
 
         while let Some(result) = cursor.next().await {
@@ -70,14 +76,13 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         }
 
         if response_vec.is_empty() {
-            return Err(DBErrors::NoResults)
+            return Err(DBErrors::NoResults);
         }
         Ok(response_vec)
     }
 
     pub async fn get_all_by(&self, doc: Option<Document>) -> DBResult<Vec<T>> {
         let cursor = self.collection.find(doc, None).await;
-
 
         let cursor = DBErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
         self.process_cursor(cursor).await
@@ -95,24 +100,16 @@ where T: DeserializeOwned + Unpin + Send + Sync + Serialize {
         }
     }
 
-    pub async fn update_by_id(
-        &self,
-        id: &ObjectId,
-        fields: Document,
-    ) -> DBResult<UpdateResult> {
+    pub async fn update_by_id(&self, id: &ObjectId, fields: Document) -> DBResult<UpdateResult> {
         let filter = doc! {"_id": id};
         self.update_by_doc(filter, fields).await
     }
 
-    pub async fn delete_by_id(
-        &self,
-        id: &ObjectId,
-    )  -> DBResult<DeleteResult> {
+    pub async fn delete_by_id(&self, id: &ObjectId) -> DBResult<DeleteResult> {
         let filter = doc! {"_id": id};
         match self.collection.delete_one(filter, None).await {
             Err(err) => Err(DBErrors::InternalError(err.to_string())),
             Ok(result) => Ok(result),
         }
     }
-
 }

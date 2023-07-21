@@ -1,8 +1,19 @@
- use chrono::{Weekday, Utc, TimeZone, Days};
-use mongodb::{Collection, bson::{oid::ObjectId, doc}, results::{InsertOneResult, UpdateResult, DeleteResult}, Cursor};
+
+use chrono::{Days, TimeZone, Utc, Weekday};
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    results::{DeleteResult, InsertOneResult, UpdateResult},
+    Collection, Cursor,
+};
 use tokio_stream::StreamExt;
 
-use crate::{models::tasks::{Task, CreateTask, RoutineWeekDay}, common::{errors::{DBErrors, DBResult}, dates::remove_hours_from_date}};
+use crate::{
+    common::{
+        dates::remove_hours_from_date,
+        errors::{DBErrors, DBResult},
+    },
+    models::tasks::{CreateTask, RoutineWeekDay, Task},
+};
 
 use super::base_service::BaseService;
 
@@ -18,9 +29,8 @@ impl TasksService {
         self.0.create(&task).await
     }
 
-
-    /** 
-        Get's all the tasks based on the day passed 
+    /**
+        Get's all the tasks based on the day passed
     */
     pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<Vec<Task>> {
         let date1 = remove_hours_from_date(date).unwrap();
@@ -36,14 +46,12 @@ impl TasksService {
     /**
      * Updates the status of overdue tasks
      */
-    pub async fn set_task_to_overdue(&self, id: &ObjectId ) -> DBResult<UpdateResult> {
+    pub async fn set_task_to_overdue(&self, id: &ObjectId) -> DBResult<UpdateResult> {
         let update_doc = doc! {
             "status": "overdue"
         };
         self.0.update_by_id(id, update_doc).await
     }
-
-
 
     /**
      * Get's all the tasks and sorts by the time the tasks will happen
@@ -63,8 +71,11 @@ impl TasksService {
     /**
      * Updates the entry based on the id passed
      */
-    pub async fn update_by_id(&self, id:&ObjectId, create_task: CreateTask) -> DBResult<UpdateResult>{
-
+    pub async fn update_by_id(
+        &self,
+        id: &ObjectId,
+        create_task: CreateTask,
+    ) -> DBResult<UpdateResult> {
         let doc = doc! {
             "body": create_task.body,
             "start_at": create_task.start_at,
@@ -77,8 +88,7 @@ impl TasksService {
     /**
      * Deleted the entry based on the id passed.
      */
-    pub async fn delete_by_id(&self, id:&ObjectId) -> DBResult<DeleteResult> {
+    pub async fn delete_by_id(&self, id: &ObjectId) -> DBResult<DeleteResult> {
         self.0.delete_by_id(id).await
     }
 }
-

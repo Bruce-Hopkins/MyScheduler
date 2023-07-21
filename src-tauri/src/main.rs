@@ -1,22 +1,23 @@
-
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-pub mod models;
+pub mod app;
+pub mod common;
 pub mod handlers;
+pub mod models;
 pub mod services;
 pub mod tests;
-pub mod common;
-pub mod app;
 
-
-use chrono::{Utc, Timelike};
-use handlers::cron::{CronjobHandler,  add_cronjob_tasks, run_cronjobs};
-use models::{tasks::{Task, Time}, routine::Routine};
-use mongodb::{Collection, Database, options::ClientOptions, Client};
-use services::{tasks_service::TasksService, routine_service::RoutineService};
-use tokio::sync::Mutex;
+use chrono::{Timelike, Utc};
+use handlers::cron::{add_cronjob_tasks, run_cronjobs, CronjobHandler};
+use models::{
+    routine::Routine,
+    tasks::{Task, Time},
+};
+use mongodb::{options::ClientOptions, Client, Collection, Database};
+use services::{routine_service::RoutineService, tasks_service::TasksService};
 use std::{env, sync::Arc, time::Duration};
+use tokio::sync::Mutex;
 
 use crate::app::tasks_app::*;
 pub struct EnvConfig {
@@ -117,7 +118,7 @@ impl AppState {
      * Preconditions: Set the db, name of the collection, and whether the db should be dropped.
      * Postconditons: If the variable `should_drop_col` is true, then it will drop the col If not, it won't.
      * It will always return the collection
-    */
+     */
     pub async fn start_collections<T>(db: &Database, name: &str) -> Collection<T> {
         db.collection(name)
     }
@@ -135,7 +136,7 @@ impl AppState {
             routine_service,
             task_service,
             cron_handler: cron_task_handler,
-            test: "test".to_string()
+            test: "test".to_string(),
         }
     }
 
@@ -144,42 +145,50 @@ impl AppState {
     }
 }
 
-
-
 #[tauri::command]
-async fn my_custom_command(app_state: tauri::State<'_, Arc<AppState>>, time: Time) -> Result<String, String> {
+async fn my_custom_command(
+    app_state: tauri::State<'_, Arc<AppState>>,
+    time: Time,
+) -> Result<String, String> {
     let test = &app_state.test;
     Ok(format!("{}:{}. Test:{}", time.hour, time.minute, test))
 }
 
-async fn startup_script() {
-    
-}
-    
+async fn startup_script() {}
+
 #[tokio::main]
 async fn main() {
-  
     let db = init_db().await;
     let state = AppState::new(&db).await.into_arc();
-
 
     startup_script().await;
     start_app(state.clone());
     start_cron_job(state).await;
-
 }
 
 fn start_app(app_state: Arc<AppState>) {
     tauri::Builder::default()
-    .manage(app_state)
-    .invoke_handler(tauri::generate_handler![my_custom_command,app_get_tasks_by_day, app_get_all_tasks, app_get_task_by_id, app_edit_task, app_delete_task, app_create_task]) 
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+        .manage(app_state)
+        .invoke_handler(tauri::generate_handler![
+            my_custom_command,
+            app_get_tasks_by_day,
+            app_get_all_tasks,
+            app_get_task_by_id,
+            app_edit_task,
+            app_delete_task,
+            app_create_task
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 
 async fn start_cron_job(app_state: Arc<AppState>) {
     tokio::spawn(async move {
-        let tasks = app_state.task_service.filter_by_day(Utc::now()).await.unwrap();
+        let tasks = app_state
+            .task_service
+            .filter_by_day(Utc::now())
+            .await
+            .unwrap();
         // let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
 
         add_cronjob_tasks(&app_state.cron_handler, tasks).await;
@@ -189,8 +198,6 @@ async fn start_cron_job(app_state: Arc<AppState>) {
         }
     });
 }
-
-
 
 pub async fn init_db() -> Database {
     let db_name = String::from("time-managing-app");

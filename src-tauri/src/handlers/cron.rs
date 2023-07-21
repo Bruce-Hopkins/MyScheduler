@@ -1,17 +1,27 @@
-use std::{future::Future, time::Duration, sync::Arc, vec, collections::HashMap};
+use std::{collections::HashMap, future::Future, sync::Arc, time::Duration, vec};
 
 use bson::oid::ObjectId;
-use chrono::{DateTime, Utc, Days, Timelike};
-use tokio::{time::sleep, sync::Mutex, task::JoinHandle};
+use chrono::{DateTime, Days, Timelike, Utc};
+use tokio::{sync::Mutex, task::JoinHandle, time::sleep};
 
-
-use crate::{common::dates::remove_hours_from_date, AppState, app, models::{tasks::{Time, Task}, routine::Routine}, handlers::cron};
-
+use crate::{
+    app,
+    common::dates::remove_hours_from_date,
+    handlers::cron,
+    models::{
+        routine::Routine,
+        tasks::{Task, Time},
+    },
+    AppState,
+};
 
 struct CronjobTask(Task);
 impl CronjobTask {
     async fn set_as_overdue(&self, app_state: &AppState) {
-        app_state.task_service.set_task_to_overdue(&self.0.id()).await;
+        app_state
+            .task_service
+            .set_task_to_overdue(&self.0.id())
+            .await;
     }
 }
 
@@ -24,10 +34,8 @@ impl CronjobRoutine {
 }
 enum Cronjob {
     Task(CronjobTask),
-    Routine(CronjobRoutine)
+    Routine(CronjobRoutine),
 }
-
-
 
 pub struct CronjobHandler(HashMap<String, Vec<Cronjob>>);
 
@@ -53,10 +61,10 @@ impl CronjobHandler {
         match self.0.get_mut(&key) {
             Some(value) => {
                 value.push(cronjob);
-            },
+            }
             None => {
                 self.0.insert(key, vec![cronjob]);
-            },
+            }
         }
     }
 
@@ -65,7 +73,12 @@ impl CronjobHandler {
         self.0.contains_key(&key).clone()
     }
 
-    pub async fn run_cronjob(&mut self, minute: u32, hour: u32, app_state: &Arc<AppState>) -> Option<()> {
+    pub async fn run_cronjob(
+        &mut self,
+        minute: u32,
+        hour: u32,
+        app_state: &Arc<AppState>,
+    ) -> Option<()> {
         let key = format!("{hour}-{minute}");
         let cronjobs = self.0.remove(&key)?;
 
@@ -75,26 +88,21 @@ impl CronjobHandler {
                 Cronjob::Task(task) => {
                     if task.0.end_at() < Utc::now() {
                         task.set_as_overdue(&app_state).await;
-                    }
-                    else {
+                    } else {
                         continued_cronjobs.push(Cronjob::Task(task));
                     }
-                },
+                }
                 Cronjob::Routine(routine) => {
                     // let func = &routine.callback;
                     // func().await;
                     // continued_cronjobs.push(Cronjob::Routine(routine));
-                },
+                }
             }
-        } 
+        }
         self.0.insert(key, continued_cronjobs);
         Some(())
     }
-
 }
-
-
-
 
 // pub struct CronTaskHandler(Vec<CronTask>);
 
@@ -109,10 +117,9 @@ impl CronjobHandler {
 
 // //             let iter = (&mut cron_task_handler.0).into_iter();
 
-
 // //             // Figure out how to remove an element from the list of cronjobs.
 // //             let result = iter.enumerate().position(|value| value.1.id == id).unwrap();
-// //             cron_task_handler.0.remove(result);           
+// //             cron_task_handler.0.remove(result);
 // //         });
 
 // //         cron_task_handler.lock();
@@ -128,29 +135,29 @@ impl CronjobHandler {
 //     }
 // }
 
-pub fn milliseconds_between_dates(start:DateTime<Utc>,  end: DateTime<Utc>) -> i64 {
+pub fn milliseconds_between_dates(start: DateTime<Utc>, end: DateTime<Utc>) -> i64 {
     let duration = end.signed_duration_since(start);
     duration.num_milliseconds()
 }
 
-
-pub async fn add_cronjob_tasks(cron_handler:&Arc<Mutex<CronjobHandler>>, tasks: Vec<Task>) {
+pub async fn add_cronjob_tasks(cron_handler: &Arc<Mutex<CronjobHandler>>, tasks: Vec<Task>) {
     for task in tasks {
         cron_handler.lock().await.add_task(task)
     }
 }
 
-pub async fn add_cronjob_routines(cron_handler:&Arc<Mutex<CronjobHandler>>, tasks: Vec<Routine>) {
+pub async fn add_cronjob_routines(cron_handler: &Arc<Mutex<CronjobHandler>>, tasks: Vec<Routine>) {
     for task in tasks {
         cron_handler.lock().await.add_routine(task)
     }
 }
 
-
 pub async fn run_cronjobs(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
     let now = Utc::now();
-    let mut cron_handler = cron_handler.lock().await; 
+    let mut cron_handler = cron_handler.lock().await;
     if cron_handler.contains_hours(now.minute(), now.hour()).await {
-        cron_handler.run_cronjob(now.minute(), now.hour(), app_state).await;
+        cron_handler
+            .run_cronjob(now.minute(), now.hour(), app_state)
+            .await;
     }
 }

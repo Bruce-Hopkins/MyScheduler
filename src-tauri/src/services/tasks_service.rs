@@ -12,7 +12,7 @@ use crate::{
         dates::remove_hours_from_date,
         errors::{DBErrors, DBResult},
     },
-    models::tasks::{CreateTask, RoutineWeekDay, Task},
+    models::tasks::{CreateTask, RoutineWeekDay, Task, TaskList},
 };
 
 use super::base_service::BaseService;
@@ -32,7 +32,7 @@ impl TasksService {
     /**
         Get's all the tasks based on the day passed
     */
-    pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<Vec<Task>> {
+    pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<TaskList> {
         let date1 = remove_hours_from_date(date).unwrap();
 
         // Get the dates between today and tomorrow.
@@ -40,7 +40,8 @@ impl TasksService {
 
         let doc = doc! { "start_at": { "$gte": date1, "$lte": date2 } };
 
-        self.0.get_all_by(Some(doc)).await
+        let result = self.0.get_all_by(Some(doc)).await?;
+        Ok(TaskList::new(result))
     }
 
     /**
@@ -56,9 +57,10 @@ impl TasksService {
     /**
      * Get's all the tasks and sorts by the time the tasks will happen
      */
-    pub async fn get_my_tasks(&self) -> DBResult<Vec<Task>> {
+    pub async fn get_my_tasks(&self) -> DBResult<TaskList> {
         let sort = doc! {"start_time": 1};
-        self.0.get_all_by_and_sort(None, sort).await
+        let result = self.0.get_all_by_and_sort(None, sort).await?;
+        Ok(TaskList::new(result))
     }
 
     /**

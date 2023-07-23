@@ -25,6 +25,21 @@ pub struct Task {
     created_at: chrono::DateTime<Utc>,
 }
 
+pub struct TaskList(Vec<Task>);
+
+impl TaskList {
+    pub fn new(tasks: Vec<Task>) -> Self {
+        TaskList(tasks)
+    }
+    pub fn into_model(self) -> Vec<Task> {
+        self.0
+    }
+    pub fn into_res(self) -> Vec<TaskRes> {
+        self.0.into_iter().map(|task| task.into_res()).collect()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TaskRes {
     id: String,
     body: String,
@@ -41,7 +56,7 @@ impl Task {
             id: self.id.unwrap().to_hex(),
             body: self.body,
             start_at: self.start_at.to_rfc3339(),
-            end_at: self.start_at.to_rfc3339(),
+            end_at: self.end_at.to_rfc3339(),
             color: self.colors,
             status: self.status,
             created_at: self.created_at.to_rfc3339(),

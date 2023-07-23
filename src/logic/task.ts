@@ -12,6 +12,7 @@ export class Task {
 
   constructor(task: TaskRes) {
     try {
+      console.log("task is", task);
       this.start_at = new Date(task.start_at);
       this.end_at = new Date(task.end_at);
     } catch (e) {
@@ -26,17 +27,24 @@ export class Task {
     }
 
     this.color = task.color as Color;
+    this.task = task;
+
+    console.log(this.color);
   }
 
   get minutes() {
     const miliseconds = this.end_at.getTime() - this.start_at.getTime();
+    console.log("Miliseconds are", miliseconds);
     const seconds = miliseconds / 1000;
     const minutes = seconds / 60;
+    console.log("Minutes are", minutes);
     return minutes;
   }
 
   get height() {
-    return pxPerMinute(this.minutes);
+    const height = pxPerMinute(this.minutes);
+    console.log("height is", height);
+    return height;
   }
 
   get body() {

@@ -6,6 +6,16 @@
   const taskModel = new Task(task);
 </script>
 
-<div style="background-color: {taskModel.color}; height: {taskModel.height}">
+<div
+  style="background-color: {taskModel.color}; height: {taskModel.height}px;"
+  class="task"
+>
   {taskModel.body}
 </div>
+
+<style>
+  .task {
+    font-weight: bold;
+    border-radius: 6px;
+  }
+</style>

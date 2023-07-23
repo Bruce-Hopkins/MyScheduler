@@ -8,7 +8,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     common::errors::{DBErrors, DBResult},
-    models::tasks::Task,
+    models::tasks::{Task, TaskList},
 };
 use tokio_stream::StreamExt;
 
@@ -60,7 +60,8 @@ where
         let cursor = self.collection.find(doc, find_options).await;
 
         let cursor = DBErrors::from_unknown_result(cursor, "Failed to get task cursor")?;
-        self.process_cursor(cursor).await
+        let result = self.process_cursor(cursor).await;
+        result
     }
 
     pub async fn process_cursor(&self, mut cursor: Cursor<T>) -> DBResult<Vec<T>> {

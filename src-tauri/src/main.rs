@@ -191,7 +191,7 @@ async fn start_cron_job(app_state: Arc<AppState>) {
             .unwrap();
         // let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
 
-        add_cronjob_tasks(&app_state.cron_handler, tasks).await;
+        add_cronjob_tasks(&app_state.cron_handler, tasks.into_model()).await;
         loop {
             tokio::time::interval(Duration::from_secs(60)).tick().await;
             run_cronjobs(&app_state.cron_handler, &app_state).await;

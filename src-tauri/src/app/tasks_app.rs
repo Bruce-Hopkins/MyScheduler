@@ -6,7 +6,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     common::errors::DBResult,
-    models::tasks::{CreateTask, Task, Time},
+    models::tasks::{CreateTask, Task, Time, TaskRes},
     AppState,
 };
 
@@ -25,22 +25,22 @@ fn object_id_from_string(id: &str) -> AppResult<ObjectId> {
 pub async fn app_get_tasks_by_day(
     state: tauri::State<'_, AppStateRef>,
     day: String,
-) -> AppResult<Vec<Task>> {
+) -> AppResult<Vec<TaskRes>> {
     let date = NaiveDateTime::parse_from_str(&day, "%Y-%m-%d %H:%M:%S").unwrap();
     let datetime = date.and_utc();
 
     // let utc_datetime: DateTime<Utc> = DateTime::from_utc(date, Utc);
     match state.task_service.filter_by_day(datetime).await {
-        Ok(value) => Ok(value),
+        Ok(value) => Ok(value.into_res()),
         Err(e) => Err(e.to_string()),
     }
 }
 
 #[tauri::command]
-pub async fn app_get_all_tasks(state: tauri::State<'_, AppStateRef>) -> AppResult<Vec<Task>> {
+pub async fn app_get_all_tasks(state: tauri::State<'_, AppStateRef>) -> AppResult<Vec<TaskRes>> {
     let result = state.task_service.get_my_tasks().await;
     match result {
-        Ok(value) => Ok(value),
+        Ok(value) => Ok(value.into_res()),
         Err(e) => Err(e.to_string()),
     }
 }

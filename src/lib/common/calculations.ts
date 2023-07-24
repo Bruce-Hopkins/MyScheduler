@@ -5,5 +5,5 @@
  * @returns The number of pixels needed
  */
 export function pxPerMinute(minutes: number) {
-  return minutes * 1.66;
+  return minutes * 2;
 }

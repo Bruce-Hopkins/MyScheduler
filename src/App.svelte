@@ -4,7 +4,8 @@
   import Counter from "./lib/Counter.svelte";
   import type { TaskCreate, TaskRes } from "./lib/types/tasks";
   import { get_all_tasks } from "./lib/api/tasks-api";
-  import Task from "./lib/components/task.svelte";
+  import Task from "./lib/components/Task.svelte";
+  import Schedule from "./lib/components/Schedule.svelte";
   // When using the Tauri global script (if not using the npm package)
 
   let tasks: TaskRes[] = [];
@@ -22,9 +23,12 @@
 
 <main>
   <h1>Hey</h1>
-  {#each tasks as task}
-    <Task {task} />
-  {/each}
+
+  <Schedule>
+    {#each tasks as task}
+      <Task {task} />
+    {/each}
+  </Schedule>
   <div>
     <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
       <img src={viteLogo} class="logo" alt="Vite Logo" />

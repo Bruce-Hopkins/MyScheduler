@@ -4,10 +4,17 @@
 
   export let task: TaskRes;
   const taskModel = new Task(task);
+
+  const clickEvent = () => {
+    alert("Clicked");
+  };
 </script>
 
+<!-- The -20 is to accomidate the padding top -->
 <div
-  style="background-color: {taskModel.color}; height: {taskModel.height}px;"
+  on:click={clickEvent}
+  style="background-color: {taskModel.color}; height: {taskModel.height -
+    20}px;"
   class="task"
 >
   {taskModel.body}
@@ -15,7 +22,10 @@
 
 <style>
   .task {
+    padding-top: 20px;
+    padding-left: 30px;
     font-weight: bold;
     border-radius: 6px;
+    text-align: start;
   }
 </style>

@@ -11,21 +11,26 @@
 </script>
 
 <!-- The -20 is to accomidate the padding top -->
-<div
-  on:click={clickEvent}
-  style="background-color: {taskModel.color}; height: {taskModel.height -
-    20}px;"
-  class="task"
->
-  {taskModel.body}
+<div class="task-container">
+  <div
+    on:click={clickEvent}
+    style="background-color: white; height: {taskModel.height - 20}px;"
+    class="task-details"
+  >
+    {taskModel.body}
+  </div>
 </div>
 
 <style>
-  .task {
+  .task-container {
+    display: flex;
+  }
+  .task-details {
     padding-top: 20px;
     padding-left: 30px;
     font-weight: bold;
     border-radius: 6px;
     text-align: start;
+    width: 100%;
   }
 </style>

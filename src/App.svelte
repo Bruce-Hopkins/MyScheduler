@@ -55,6 +55,9 @@
 </main>
 
 <style>
+  main {
+    width: 90vw;
+  }
   .logo {
     height: 6em;
     padding: 1.5em;

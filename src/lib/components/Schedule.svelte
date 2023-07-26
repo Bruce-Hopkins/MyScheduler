@@ -29,9 +29,14 @@
 </div>
 
 <style>
+  .schedule {
+    /* margin: 0 50px; */
+  }
   .schedule-container {
     display: block;
     position: relative;
+    display: flex;
+    flex-direction: column;
   }
   .hour-slot {
     /* The -24 is to accomidate the size of the numbers */
@@ -39,6 +44,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
   }
   .slot-right {
     border-top: 1px solid #6c757d;
@@ -51,7 +57,8 @@
   .task-slots {
     display: block;
     position: absolute;
-    margin-left: 50px;
-    margin-top: 12px;
+    top: -12px;
+    width: calc(100% - 50px);
+    right: 0;
   }
 </style>

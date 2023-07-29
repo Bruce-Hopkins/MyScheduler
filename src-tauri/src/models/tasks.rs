@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use bson::{doc, Document};
 use chrono::{Date, DateTime, Datelike, Days, TimeZone, Timelike, Utc};
 use mongodb::bson::oid::ObjectId;
@@ -5,7 +7,66 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::dates::remove_hours_from_date;
 
+struct TaskGroup(Vec<Task>);
+impl TaskGroup {
+    fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    fn add(&mut self, task: Task) {
+        self.0.push(task)
+    }
+}
+
+pub struct TaskList(Vec<Task>);
+
+impl TaskList {
+    pub fn new(tasks: Vec<Task>) -> Self {
+        TaskList(tasks)
+    }
+    pub fn into_model(self) -> Vec<Task> {
+        self.0
+    }
+    pub fn into_res(self) -> Vec<TaskRes> {
+        self.0.into_iter().map(|task| task.into_res()).collect()
+    }
+
+    pub fn group_tasks(self) -> Vec<Vec<Task>> {
+        let mut tasks = self.0;
+        tasks.sort();
+
+        let mut group = vec![];
+        let mut group_lists = vec![];
+        for i in 0..tasks.len() {
+            let task = tasks.get(i).unwrap();
+            group.push(task.clone());
+
+            let next_task = tasks.get(i + 1);
+
+            if let Some(value) = next_task {
+                if value.start_at > task.end_at {
+                    group_lists.push(group);
+                    group = vec![];
+                }
+            }
+        }
+
+        group_lists
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TaskRes {
+    id: String,
+    body: String,
+    status: String,
+    start_at: String,
+    end_at: String,
+    color: String,
+    created_at: String,
+}
+
+#[derive(Serialize, Eq, Deserialize, Debug, Clone)]
 
 pub struct Task {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
@@ -23,31 +84,6 @@ pub struct Task {
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     created_at: chrono::DateTime<Utc>,
-}
-
-pub struct TaskList(Vec<Task>);
-
-impl TaskList {
-    pub fn new(tasks: Vec<Task>) -> Self {
-        TaskList(tasks)
-    }
-    pub fn into_model(self) -> Vec<Task> {
-        self.0
-    }
-    pub fn into_res(self) -> Vec<TaskRes> {
-        self.0.into_iter().map(|task| task.into_res()).collect()
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TaskRes {
-    id: String,
-    body: String,
-    status: String,
-    start_at: String,
-    end_at: String,
-    color: String,
-    created_at: String,
 }
 
 impl Task {
@@ -70,6 +106,24 @@ impl Task {
     pub fn id(&self) -> ObjectId {
         let id = &self.id.unwrap();
         id.clone()
+    }
+}
+
+impl Ord for Task {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.start_at.cmp(&other.start_at)
+    }
+}
+
+impl PartialOrd for Task {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Task {
+    fn eq(&self, other: &Self) -> bool {
+        self.start_at == other.start_at
     }
 }
 

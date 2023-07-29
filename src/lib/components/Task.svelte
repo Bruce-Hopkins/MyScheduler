@@ -14,7 +14,7 @@
 <div class="task-container">
   <div
     on:click={clickEvent}
-    style="background-color: white; height: {taskModel.height - 20}px;"
+    style="background-color: {task.color}; height: {taskModel.height - 20}px;"
     class="task-details"
   >
     {taskModel.body}

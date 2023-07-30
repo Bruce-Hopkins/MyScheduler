@@ -6,9 +6,10 @@
   import { get_all_tasks } from "./lib/api/tasks-api";
   import Task from "./lib/components/Task.svelte";
   import Schedule from "./lib/components/Schedule.svelte";
+  import Taskgroup from "./lib/components/Taskgroup.svelte";
   // When using the Tauri global script (if not using the npm package)
 
-  let tasks: TaskRes[] = [];
+  let tasks: TaskRes[][] = [];
   async function get_tasks() {
     tasks = await get_all_tasks();
   }
@@ -26,7 +27,7 @@
 
   <Schedule>
     {#each tasks as task}
-      <Task {task} />
+      <Taskgroup tasks={task} />
     {/each}
   </Schedule>
   <div>

@@ -26,7 +26,7 @@ export async function get_task_by_id(id: string): Promise<TaskRes> {
   return result;
 }
 
-export async function get_all_tasks(): Promise<TaskRes[]> {
-  const result: TaskRes[] = await invoke("app_get_all_tasks");
+export async function get_all_tasks(): Promise<TaskRes[][]> {
+  const result: TaskRes[][] = await invoke("app_get_all_tasks");
   return result;
 }

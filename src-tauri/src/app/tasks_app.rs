@@ -6,7 +6,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     common::errors::DBResult,
-    models::tasks::{CreateTask, Task, Time, TaskRes},
+    models::tasks::{CreateTask, Task, TaskRes, Time},
     AppState,
 };
 
@@ -37,10 +37,13 @@ pub async fn app_get_tasks_by_day(
 }
 
 #[tauri::command]
-pub async fn app_get_all_tasks(state: tauri::State<'_, AppStateRef>) -> AppResult<Vec<TaskRes>> {
+pub async fn app_get_all_tasks(
+    state: tauri::State<'_, AppStateRef>,
+) -> AppResult<Vec<Vec<TaskRes>>> {
     let result = state.task_service.get_my_tasks().await;
+
     match result {
-        Ok(value) => Ok(value.into_res()),
+        Ok(value) => Ok(value.group_tasks().into_res()),
         Err(e) => Err(e.to_string()),
     }
 }

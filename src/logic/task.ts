@@ -1,9 +1,9 @@
-import { pxPerMinute } from "../lib/common/calculations";
+import { dateToMinutes, pxPerMinute } from "../lib/common/calculations";
 import type { TaskRes } from "../lib/types/tasks";
 
 type Color = `#${string}`;
 
-export class Task {
+export class TaskModel {
   private task: TaskRes;
 
   public start_at: Date;
@@ -28,22 +28,30 @@ export class Task {
 
     this.color = task.color as Color;
     this.task = task;
+  }
 
-    console.log(this.color);
+  get top(): number {
+    const today = new Date(this.start_at);
+
+    today.setHours(0);
+    today.setMinutes(0);
+
+    const todayMinutes = dateToMinutes(today);
+    const startDateMinutes = dateToMinutes(this.start_at);
+    return pxPerMinute(startDateMinutes) - pxPerMinute(todayMinutes);
   }
 
   get minutes() {
     const miliseconds = this.end_at.getTime() - this.start_at.getTime();
-    console.log("Miliseconds are", miliseconds);
     const seconds = miliseconds / 1000;
     const minutes = seconds / 60;
-    console.log("Minutes are", minutes);
     return minutes;
   }
 
   get height() {
+    console.log("end", this.end_at.getHours());
+
     const height = pxPerMinute(this.minutes);
-    console.log("height is", height);
     return height;
   }
 

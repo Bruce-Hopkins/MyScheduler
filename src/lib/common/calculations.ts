@@ -7,3 +7,10 @@
 export function pxPerMinute(minutes: number) {
   return minutes * 2;
 }
+
+export function dateToMinutes(date: Date) {
+  const miliseconds = date.getTime();
+  const seconds = miliseconds / 1000;
+  const minutes = seconds / 60;
+  return minutes;
+}

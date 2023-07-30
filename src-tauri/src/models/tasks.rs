@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::common::dates::remove_hours_from_date;
 
-struct TaskGroup(Vec<Task>);
+#[derive(Debug, Clone)]
+pub struct TaskGroup(Vec<Task>);
 impl TaskGroup {
     fn new() -> Self {
         Self(Vec::new())
@@ -15,6 +16,30 @@ impl TaskGroup {
 
     fn add(&mut self, task: Task) {
         self.0.push(task)
+    }
+
+    fn clear(&mut self) {
+        self.0 = vec![];
+    }
+
+    pub fn into_res(self) -> Vec<TaskRes> {
+        self.0.into_iter().map(|task| task.into_res()).collect()
+    }
+}
+
+pub struct TaskGroupList(Vec<TaskGroup>);
+
+impl TaskGroupList {
+    fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    fn add(&mut self, task: TaskGroup) {
+        self.0.push(task)
+    }
+
+    pub fn into_res(self) -> Vec<Vec<TaskRes>> {
+        self.0.into_iter().map(|task| task.into_res()).collect()
     }
 }
 
@@ -31,27 +56,27 @@ impl TaskList {
         self.0.into_iter().map(|task| task.into_res()).collect()
     }
 
-    pub fn group_tasks(self) -> Vec<Vec<Task>> {
+    pub fn group_tasks(self) -> TaskGroupList {
         let mut tasks = self.0;
         tasks.sort();
 
-        let mut group = vec![];
-        let mut group_lists = vec![];
+        let mut group = TaskGroup::new();
+        let mut group_lists = TaskGroupList::new();
+
         for i in 0..tasks.len() {
             let task = tasks.get(i).unwrap();
-            group.push(task.clone());
+            group.add(task.clone());
 
             let next_task = tasks.get(i + 1);
 
             if let Some(value) = next_task {
                 if value.start_at > task.end_at {
-                    group_lists.push(group);
-                    group = vec![];
+                    group_lists.add(group.clone());
+                    group.clear();
                 }
-            }
-            else {
-                group_lists.push(group);
-                group = vec![];
+            } else {
+                group_lists.add(group.clone());
+                group.clear();
             }
         }
 
@@ -114,7 +139,6 @@ impl Task {
     pub fn set_end_at(&mut self, date: DateTime<Utc>) {
         self.end_at = date;
     }
-    
 
     pub fn id(&self) -> ObjectId {
         let id = &self.id.unwrap();

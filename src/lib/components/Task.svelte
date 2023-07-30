@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Task } from "../../logic/task";
+  import { TaskModel } from "../../logic/task";
   import type { TaskRes } from "../types/tasks";
 
-  export let task: TaskRes;
-  const taskModel = new Task(task);
+  export let task: TaskModel;
+  export let top: number;
 
   const clickEvent = () => {
     alert("Clicked");
@@ -11,13 +11,13 @@
 </script>
 
 <!-- The -20 is to accomidate the padding top -->
-<div class="task-container">
+<div class="task-container" style="margin-top: {task.top - top}px;">
   <div
     on:click={clickEvent}
-    style="background-color: {task.color}; height: {taskModel.height - 20}px;"
+    style="background-color: {task.color}; height: {task.height - 20}px;"
     class="task-details"
   >
-    {taskModel.body}
+    {task.body}
   </div>
 </div>
 

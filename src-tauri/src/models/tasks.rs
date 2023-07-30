@@ -49,6 +49,10 @@ impl TaskList {
                     group = vec![];
                 }
             }
+            else {
+                group_lists.push(group);
+                group = vec![];
+            }
         }
 
         group_lists
@@ -102,6 +106,15 @@ impl Task {
     pub fn end_at(&self) -> DateTime<Utc> {
         self.end_at
     }
+
+    pub fn set_start_at(&mut self, date: DateTime<Utc>) {
+        self.start_at = date;
+    }
+
+    pub fn set_end_at(&mut self, date: DateTime<Utc>) {
+        self.end_at = date;
+    }
+    
 
     pub fn id(&self) -> ObjectId {
         let id = &self.id.unwrap();

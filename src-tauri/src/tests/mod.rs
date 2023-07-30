@@ -16,6 +16,7 @@ use crate::{
 
 mod handlers;
 mod services;
+mod models;
 
 struct TestServices {
     task_service: TasksService,

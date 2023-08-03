@@ -1,7 +1,6 @@
 import { dateToMinutes, pxPerMinute } from "../lib/common/calculations";
+import type { Color } from "../lib/types/common";
 import type { TaskRes } from "../lib/types/tasks";
-
-type Color = `#${string}`;
 
 export class TaskModel {
   private task: TaskRes;
@@ -12,7 +11,6 @@ export class TaskModel {
 
   constructor(task: TaskRes) {
     try {
-      console.log("task is", task);
       this.start_at = new Date(task.start_at);
       this.end_at = new Date(task.end_at);
     } catch (e) {

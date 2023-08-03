@@ -8,6 +8,7 @@
   import Schedule from "./lib/components/Schedule.svelte";
   import Taskgroup from "./lib/components/Taskgroup.svelte";
   import Button from "./lib/components/Button.svelte";
+  import Modal from "./lib/components/Modal.svelte";
   // When using the Tauri global script (if not using the npm package)
 
   let tasks: TaskRes[][] = [];
@@ -15,12 +16,20 @@
     tasks = await get_all_tasks();
   }
   get_tasks();
+  let modalIsOpen = false;
+  const openModal = () => {
+    modalIsOpen = true;
+  };
+  const dismissModal = () => {
+    modalIsOpen = false;
+  };
 </script>
 
 <main>
   <h1>Hey</h1>
 
-  <Button>Submit</Button>
+  <Button onClick={openModal}>Submit</Button>
+  <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
   <Schedule>
     {#each tasks as task}
       <Taskgroup tasks={task} />

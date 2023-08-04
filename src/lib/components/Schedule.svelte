@@ -30,7 +30,9 @@
 
 <style>
   .schedule {
-    /* margin: 0 50px; */
+    margin: 24px 0;
+    position: relative;
+    display: block;
   }
   .schedule-container {
     display: block;

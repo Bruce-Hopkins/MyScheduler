@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { TaskModel } from "../../logic/task";
-  import type { TaskRes } from "../types/tasks";
+  import { TaskModel } from "../../../logic/task";
+  import type { TaskRes } from "../../types/tasks";
 
   export let task: TaskModel;
   export let top: number;

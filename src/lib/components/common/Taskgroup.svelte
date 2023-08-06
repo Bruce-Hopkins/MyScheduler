@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { TaskModel } from "../../logic/task";
-  import type { TaskRes } from "../types/tasks";
-  import Task from "./Task.svelte";
+  import { TaskModel } from "../../../logic/task";
+  import type { TaskRes } from "../../types/tasks";
+  import Task from "../tasks/Task.svelte";
 
   export let tasks: TaskRes[];
   const taskModels = tasks.map((task) => new TaskModel(task));

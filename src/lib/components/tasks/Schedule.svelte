@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { pxPerMinute } from "../common/calculations";
+  import { pxPerMinute } from "../../common/calculations";
 
   const hoursOfTheDay = () => {
     let numbers: string[] = [];

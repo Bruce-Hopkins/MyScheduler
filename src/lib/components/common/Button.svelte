@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Color, Size } from "../types/common";
+  import type { Color, Size } from "../../types/common";
 
   export let backgroundColor: Color = "#71AD87";
   export let color: Color = "#ffffff";

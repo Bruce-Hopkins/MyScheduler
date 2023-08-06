@@ -4,11 +4,11 @@
   import Counter from "./lib/Counter.svelte";
   import type { TaskCreate, TaskRes } from "./lib/types/tasks";
   import { get_all_tasks } from "./lib/api/tasks-api";
-  import Task from "./lib/components/Task.svelte";
-  import Schedule from "./lib/components/Schedule.svelte";
-  import Taskgroup from "./lib/components/Taskgroup.svelte";
-  import Button from "./lib/components/Button.svelte";
-  import Modal from "./lib/components/Modal.svelte";
+  import Task from "./lib/components/tasks/Task.svelte";
+  import Schedule from "./lib/components/tasks/Schedule.svelte";
+  import Taskgroup from "./lib/components/common/Taskgroup.svelte";
+  import Button from "./lib/components/common/Button.svelte";
+  import Modal from "./lib/components/common/Modal.svelte";
   // When using the Tauri global script (if not using the npm package)
 
   let tasks: TaskRes[][] = [];
@@ -26,8 +26,6 @@
 </script>
 
 <main>
-  <h1>Hey</h1>
-
   <Button onClick={openModal}>Submit</Button>
   <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
   <Schedule>
@@ -35,29 +33,6 @@
       <Taskgroup tasks={task} />
     {/each}
   </Schedule>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a
-      href="https://github.com/sveltejs/kit#readme"
-      target="_blank"
-      rel="noreferrer">SvelteKit</a
-    >, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 </main>
 
 <style>

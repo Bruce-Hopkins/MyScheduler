@@ -47,8 +47,6 @@ export class TaskModel {
   }
 
   get height() {
-    console.log("end", this.end_at.getHours());
-
     const height = pxPerMinute(this.minutes);
     return height;
   }

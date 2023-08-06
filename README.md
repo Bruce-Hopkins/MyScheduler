@@ -1,3 +1,3 @@
 # MyScheduler
 
-A desktop app built a routine and a schedule for daily routines. Built with Tauri, and Svelte.
+A desktop app built to make routines and schedules for daily tasks. Built with Tauri, and Svelte.

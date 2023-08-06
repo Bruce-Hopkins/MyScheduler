@@ -70,6 +70,7 @@ impl CronjobHandler {
 
     pub async fn contains_hours(&self, minute: u32, hour: u32) -> bool {
         let key = format!("{hour}-{minute}");
+        println!("key is {}", key);
         self.0.contains_key(&key).clone()
     }
 
@@ -86,6 +87,8 @@ impl CronjobHandler {
         for cronjob in cronjobs {
             match cronjob {
                 Cronjob::Task(task) => {
+                    println!("id {}", task.0.id());
+
                     if task.0.end_at() < Utc::now() {
                         task.set_as_overdue(&app_state).await;
                     } else {
@@ -99,6 +102,8 @@ impl CronjobHandler {
                 }
             }
         }
+        // panic!("A task ran!!");
+
         self.0.insert(key, continued_cronjobs);
         Some(())
     }
@@ -155,6 +160,8 @@ pub async fn add_cronjob_routines(cron_handler: &Arc<Mutex<CronjobHandler>>, tas
 pub async fn run_cronjobs(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
     let now = Utc::now();
     let mut cron_handler = cron_handler.lock().await;
+
+    println!("Running cron job task");
     if cron_handler.contains_hours(now.minute(), now.hour()).await {
         cron_handler
             .run_cronjob(now.minute(), now.hour(), app_state)

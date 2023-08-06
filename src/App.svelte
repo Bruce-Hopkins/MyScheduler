@@ -3,12 +3,13 @@
   import viteLogo from "/vite.svg";
   import Counter from "./lib/Counter.svelte";
   import type { TaskCreate, TaskRes } from "./lib/types/tasks";
-  import { get_all_tasks } from "./lib/api/tasks-api";
+  import { create_task, get_all_tasks } from "./lib/api/tasks-api";
   import Task from "./lib/components/tasks/Task.svelte";
   import Schedule from "./lib/components/tasks/Schedule.svelte";
   import Taskgroup from "./lib/components/common/Taskgroup.svelte";
   import Button from "./lib/components/common/Button.svelte";
   import Modal from "./lib/components/common/Modal.svelte";
+  import CurrentDateTime from "./lib/components/time/CurrentDateTime.svelte";
   // When using the Tauri global script (if not using the npm package)
 
   let tasks: TaskRes[][] = [];
@@ -23,9 +24,20 @@
   const dismissModal = () => {
     modalIsOpen = false;
   };
+
+  const start_at = new Date();
+  start_at.setMinutes(start_at.getMinutes() + 1);
+  const task: TaskCreate = {
+    body: "Test body 2",
+    start_at: new Date().toISOString(),
+    end_at: start_at.toISOString(),
+    colors: "#569BCC",
+  };
+  create_task(task);
 </script>
 
 <main>
+  <CurrentDateTime />
   <Button onClick={openModal}>Submit</Button>
   <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
   <Schedule>

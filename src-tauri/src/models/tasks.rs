@@ -43,6 +43,7 @@ impl TaskGroupList {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct TaskList(Vec<Task>);
 
 impl TaskList {

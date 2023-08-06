@@ -7,7 +7,7 @@ use tokio::sync::Mutex;
 use crate::{
     common::errors::DBResult,
     models::tasks::{CreateTask, Task, TaskRes, Time},
-    AppState,
+    AppState, handlers::cron::run_cronjobs,
 };
 
 type AppStateRef = Arc<AppState>;
@@ -41,7 +41,7 @@ pub async fn app_get_all_tasks(
     state: tauri::State<'_, AppStateRef>,
 ) -> AppResult<Vec<Vec<TaskRes>>> {
     let result = state.task_service.get_my_tasks().await;
-
+    println!("Result is done");
     match result {
         Ok(value) => Ok(value.group_tasks().into_res()),
         Err(e) => Err(e.to_string()),
@@ -95,7 +95,14 @@ pub async fn app_create_task(
 ) -> Result<String, String> {
     let result = state.task_service.create(task).await;
     match result {
-        Ok(value) => Ok(value.inserted_id.as_object_id().unwrap().to_hex()),
+        Ok(value) => {
+            let id = value.inserted_id.as_object_id().unwrap();
+            let task = state.task_service.find_by_id(&id).await.unwrap();
+
+            state.cron_handler.lock().await.add_task(task);
+            run_cronjobs(&state.cron_handler, &state).await;
+            Ok(value.inserted_id.as_object_id().unwrap().to_hex())
+        },
         Err(e) => Err(e.to_string()),
     }
 }

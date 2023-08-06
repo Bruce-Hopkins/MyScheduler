@@ -162,8 +162,12 @@ async fn main() {
     let state = AppState::new(&db).await.into_arc();
 
     startup_script().await;
+    println!("Running cronjob");
+
+    start_cron_job(state.clone()).await;
+
     start_app(state.clone());
-    start_cron_job(state).await;
+
 }
 
 fn start_app(app_state: Arc<AppState>) {
@@ -189,11 +193,14 @@ async fn start_cron_job(app_state: Arc<AppState>) {
             .filter_by_day(Utc::now())
             .await
             .unwrap();
+        println!("Tasks are {:?}", tasks);
         // let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
 
         add_cronjob_tasks(&app_state.cron_handler, tasks.into_model()).await;
+        let mut interval = tokio::time::interval(Duration::from_secs(60));
         loop {
-            tokio::time::interval(Duration::from_secs(60)).tick().await;
+            // println!("Waiting");
+            interval.tick().await;
             run_cronjobs(&app_state.cron_handler, &app_state).await;
         }
     });

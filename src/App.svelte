@@ -10,6 +10,7 @@
   import Button from "./lib/components/common/Button.svelte";
   import Modal from "./lib/components/common/Modal.svelte";
   import CurrentDateTime from "./lib/components/time/CurrentDateTime.svelte";
+  import Layout from "./lib/components/layout/Layout.svelte";
   // When using the Tauri global script (if not using the npm package)
 
   let tasks: TaskRes[][] = [];
@@ -36,16 +37,18 @@
   create_task(task);
 </script>
 
-<main>
-  <CurrentDateTime />
-  <Button onClick={openModal}>Submit</Button>
-  <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
-  <Schedule>
-    {#each tasks as task}
-      <Taskgroup tasks={task} />
-    {/each}
-  </Schedule>
-</main>
+<Layout>
+  <main>
+    <CurrentDateTime />
+    <Button onClick={openModal}>Submit</Button>
+    <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
+    <Schedule>
+      {#each tasks as task}
+        <Taskgroup tasks={task} />
+      {/each}
+    </Schedule>
+  </main>
+</Layout>
 
 <style>
   main {

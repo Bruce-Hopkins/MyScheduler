@@ -57,6 +57,10 @@ impl TaskList {
         self.0.into_iter().map(|task| task.into_res()).collect()
     }
 
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
     pub fn group_tasks(self) -> TaskGroupList {
         let mut tasks = self.0;
         tasks.sort();

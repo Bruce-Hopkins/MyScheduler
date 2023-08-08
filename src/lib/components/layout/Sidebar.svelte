@@ -4,11 +4,11 @@
 </script>
 
 <nav class="sidebar">
-  <a href="/schedule">
+  <a href="/schedules">
     <ClockIcon size={18} />
     <span> Schedules </span>
   </a>
-  <a href="/task">
+  <a href="/tasks">
     <FolderIcon size={18} />
     <span> Tasks </span>
   </a>

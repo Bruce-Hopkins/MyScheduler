@@ -50,7 +50,4 @@ async fn get_todays_task_should_succeed() {
     let group = list.group_tasks();
 
     assert_eq!(group.len(), 2);
-
-    println!("{:?}", group);
-
 }

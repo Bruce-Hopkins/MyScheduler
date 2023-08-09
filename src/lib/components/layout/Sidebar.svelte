@@ -1,17 +1,18 @@
 <script>
+  import { Link } from "svelte-routing";
   import ClockIcon from "../common/icons/ClockIcon.svelte";
   import FolderIcon from "../common/icons/FolderIcon.svelte";
 </script>
 
 <nav class="sidebar">
-  <a href="/schedules">
+  <Link to="/schedules">
     <ClockIcon size={18} />
     <span> Schedules </span>
-  </a>
-  <a href="/tasks">
+  </Link>
+  <Link to="/tasks">
     <FolderIcon size={18} />
     <span> Tasks </span>
-  </a>
+  </Link>
 </nav>
 
 <style>

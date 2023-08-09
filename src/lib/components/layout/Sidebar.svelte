@@ -2,15 +2,20 @@
   import { Link } from "svelte-routing";
   import ClockIcon from "../common/icons/ClockIcon.svelte";
   import FolderIcon from "../common/icons/FolderIcon.svelte";
+  import "./layout.css";
 </script>
 
 <nav class="sidebar">
   <Link to="/schedules">
-    <ClockIcon size={18} />
+    <div class="icon-container">
+      <ClockIcon size={20} />
+    </div>
     <span> Schedules </span>
   </Link>
   <Link to="/tasks">
-    <FolderIcon size={18} />
+    <div class="icon-container">
+      <FolderIcon size={20} />
+    </div>
     <span> Tasks </span>
   </Link>
 </nav>
@@ -18,19 +23,22 @@
 <style>
   .sidebar {
     padding-top: 20px;
-    width: 129px;
-    flex-basis: 129px;
+    width: 170px;
+    flex-basis: 170px;
     background-color: #404040;
 
     display: flex;
     justify-content: start;
     flex-direction: column;
   }
-  a {
+  .icon-container {
     display: flex;
-    flex-direction: row;
-    padding: 20px 30px;
-    color: white;
-    text-decoration: none;
+    align-items: center;
+    justify-content: start;
+  }
+  span {
+    padding-left: 10px;
+    font-weight: 600;
+    font-size: 1.05rem;
   }
 </style>

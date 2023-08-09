@@ -1,0 +1,8 @@
+a {
+  display: flex;
+  flex-direction: row;
+  padding: 20px 30px;
+  color: white;
+  text-decoration: none;
+  align-items: center;
+}

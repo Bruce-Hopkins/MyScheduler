@@ -26,8 +26,10 @@ pub async fn app_get_tasks_by_day(
     state: tauri::State<'_, AppStateRef>,
     day: String,
 ) -> AppResult<Vec<Vec<TaskRes>>> {
+    println!("day is {}", day);
     let date = NaiveDateTime::parse_from_str(&day, "%Y-%m-%d %H:%M:%S").unwrap();
     let datetime = date.and_utc();
+    println!("date is {}", datetime);
 
     // let utc_datetime: DateTime<Utc> = DateTime::from_utc(date, Utc);
     match state.task_service.filter_by_day(datetime).await {

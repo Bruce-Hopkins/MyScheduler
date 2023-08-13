@@ -14,3 +14,10 @@ export function dateToMinutes(date: Date) {
   const minutes = seconds / 60;
   return minutes;
 }
+
+export function addDaysToDate(date: Date, days: number): Date {
+  let newDate = new Date(date);
+  newDate.setDate(date.getDate() + days);
+
+  return new Date(newDate);
+}

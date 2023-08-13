@@ -1,8 +1,7 @@
 <script lang="ts">
-  const date = new Date();
+  export let date: Date;
 
-  function getDate(): string {
-    const date = new Date();
+  function getDate(date: Date): string {
     const day_of_the_week = getDay(date.getDay());
     const month = date.getMonth();
     const shortenMonth = getShortenedMonth(month);
@@ -85,7 +84,7 @@
 </script>
 
 <h3>
-  {getDate()}
+  {getDate(date)}
 </h3>
 
 <style>

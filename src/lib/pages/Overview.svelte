@@ -4,6 +4,7 @@
     create_task,
     get_tasks_by_day,
   } from "../api/tasks-api";
+  import { addDaysToDate } from "../common/calculations";
   import Button from "../components/common/Button.svelte";
   import Modal from "../components/common/Modal.svelte";
   import Taskgroup from "../components/common/Taskgroup.svelte";
@@ -15,6 +16,7 @@
   let tasks: TaskRes[][] = [];
   let today = new Date();
   async function get_tasks() {
+    console.log("Tasks are", tasks);
     tasks = await get_tasks_by_day(today);
   }
   get_tasks();
@@ -26,22 +28,33 @@
     modalIsOpen = false;
   };
 
-  const start_at = new Date();
-  start_at.setMinutes(start_at.getMinutes() + 1);
-  const task: TaskCreate = {
-    body: "Test body 2",
-    start_at: new Date().toISOString(),
-    end_at: start_at.toISOString(),
-    colors: "#569BCC",
+  const setToPreviousDay = () => {
+    today = addDaysToDate(today, -1);
   };
-  create_task(task);
+
+  const setNextDay = () => {
+    today = addDaysToDate(today, 1);
+    console.log("today is", today);
+  };
+
+  // const start_at = new Date();
+  // start_at.setMinutes(start_at.getMinutes() + 1);
+  // const task: TaskCreate = {
+  //   body: "Test body 2",
+  //   start_at: new Date().toISOString(),
+  //   end_at: start_at.toISOString(),
+  //   colors: "#569BCC",
+  // };
+  // create_task(task);
 </script>
 
 <Layout>
   <main>
-    <CurrentDateTime />
-    <Button onClick={openModal}>Next Day</Button>
-    <Button onClick={openModal}>Previous Day</Button>
+    <div class="button-group">
+      <Button width={"150px"} onClick={setToPreviousDay}>Previous Day</Button>
+      <CurrentDateTime date={today} />
+      <Button onClick={setNextDay}>Next Day</Button>
+    </div>
     <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
     <Schedule>
       {#each tasks as task}

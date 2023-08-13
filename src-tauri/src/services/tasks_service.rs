@@ -34,9 +34,11 @@ impl TasksService {
     */
     pub async fn filter_by_day(&self, date: chrono::DateTime<Utc>) -> DBResult<TaskList> {
         let date1 = remove_hours_from_date(date).unwrap();
+        println!("start date of filter {}", date1);
 
         // Get the dates between today and tomorrow.
         let date2 = date1.checked_add_days(Days::new(1)).unwrap();
+        println!("end date of filter {}", date2);
 
         let doc = doc! { "start_at": { "$gte": date1, "$lte": date2 } };
 

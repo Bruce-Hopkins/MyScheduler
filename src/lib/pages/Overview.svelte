@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { get_all_tasks, create_task } from "../api/tasks-api";
+  import {
+    get_all_tasks,
+    create_task,
+    get_tasks_by_day,
+  } from "../api/tasks-api";
   import Button from "../components/common/Button.svelte";
   import Modal from "../components/common/Modal.svelte";
   import Taskgroup from "../components/common/Taskgroup.svelte";
@@ -9,8 +13,9 @@
   import type { TaskRes, TaskCreate } from "../types/tasks";
 
   let tasks: TaskRes[][] = [];
+  let today = new Date();
   async function get_tasks() {
-    tasks = await get_all_tasks();
+    tasks = await get_tasks_by_day(today);
   }
   get_tasks();
   let modalIsOpen = false;
@@ -35,7 +40,8 @@
 <Layout>
   <main>
     <CurrentDateTime />
-    <Button onClick={openModal}>Submit</Button>
+    <Button onClick={openModal}>Next Day</Button>
+    <Button onClick={openModal}>Previous Day</Button>
     <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
     <Schedule>
       {#each tasks as task}
@@ -48,6 +54,7 @@
 <style>
   main {
     width: 90vw;
+    padding: 30px;
   }
   .logo {
     height: 6em;

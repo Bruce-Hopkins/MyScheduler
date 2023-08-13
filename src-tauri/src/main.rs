@@ -191,12 +191,13 @@ async fn start_cron_job(app_state: Arc<AppState>) {
         let tasks = app_state
             .task_service
             .filter_by_day(Utc::now())
-            .await
-            .unwrap();
-        println!("Tasks are {:?}", tasks);
-        // let routines = app_state.routine_service.filter_by_day(Utc::now()).await.unwrap();
+            .await;
 
-        add_cronjob_tasks(&app_state.cron_handler, tasks.into_model()).await;
+        if let Ok(value) = tasks {
+            add_cronjob_tasks(&app_state.cron_handler, value.into_model()).await;
+        } else  {
+            println!("No tasks for today are found")
+        }
         let mut interval = tokio::time::interval(Duration::from_secs(60));
         loop {
             // println!("Waiting");

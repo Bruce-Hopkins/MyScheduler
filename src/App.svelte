@@ -5,11 +5,10 @@
   import Tasks from "./lib/pages/Tasks.svelte";
   import Schedules from "./lib/pages/Schedules.svelte";
 
-  export let url = "/";
+  export let url = "/schedules";
 </script>
 
 <Router {url}>
-  <Route path="/" component={Overview} />
+  <Route path="/schedules" component={Overview} />
   <Route path="/tasks" component={Tasks} />
-  <Route path="/schedules" component={Schedules} />
 </Router>

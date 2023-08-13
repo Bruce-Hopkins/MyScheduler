@@ -1,7 +1,7 @@
 use std::{collections::HashMap, future::Future, sync::Arc, time::Duration, vec};
 
 use bson::oid::ObjectId;
-use chrono::{DateTime, Days, Timelike, Utc};
+use chrono::{DateTime, Days, Timelike, Utc, Local};
 use tokio::{sync::Mutex, task::JoinHandle, time::sleep};
 
 use crate::{
@@ -158,7 +158,7 @@ pub async fn add_cronjob_routines(cron_handler: &Arc<Mutex<CronjobHandler>>, tas
 }
 
 pub async fn run_cronjobs(cron_handler: &Arc<Mutex<CronjobHandler>>, app_state: &Arc<AppState>) {
-    let now = Utc::now();
+    let now = Local::now();
     let mut cron_handler = cron_handler.lock().await;
 
     println!("Running cron job task");

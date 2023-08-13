@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use bson::{doc, Document};
-use chrono::{Date, DateTime, Datelike, Days, TimeZone, Timelike, Utc};
+use chrono::{Date, DateTime, Datelike, Days, TimeZone, Timelike, Utc, Local};
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
@@ -135,8 +135,8 @@ impl Task {
         }
     }
 
-    pub fn end_at(&self) -> DateTime<Utc> {
-        self.end_at
+    pub fn end_at(&self) -> DateTime<Local> {
+        DateTime::from(self.end_at)
     }
 
     pub fn set_start_at(&mut self, date: DateTime<Utc>) {

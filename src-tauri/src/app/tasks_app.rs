@@ -25,13 +25,13 @@ fn object_id_from_string(id: &str) -> AppResult<ObjectId> {
 pub async fn app_get_tasks_by_day(
     state: tauri::State<'_, AppStateRef>,
     day: String,
-) -> AppResult<Vec<TaskRes>> {
+) -> AppResult<Vec<Vec<TaskRes>>> {
     let date = NaiveDateTime::parse_from_str(&day, "%Y-%m-%d %H:%M:%S").unwrap();
     let datetime = date.and_utc();
 
     // let utc_datetime: DateTime<Utc> = DateTime::from_utc(date, Utc);
     match state.task_service.filter_by_day(datetime).await {
-        Ok(value) => Ok(value.into_res()),
+        Ok(value) => Ok(value.group_tasks().into_res()),
         Err(e) => Err(e.to_string()),
     }
 }

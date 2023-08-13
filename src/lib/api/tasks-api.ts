@@ -26,6 +26,13 @@ export async function get_task_by_id(id: string): Promise<TaskRes> {
   const result: TaskRes = await invoke("app_get_task_by_id", { id });
   return result;
 }
+export async function get_tasks_by_day(day: Date): Promise<TaskRes[][]> {
+  const dayString = `${day.getFullYear()}-${day.getMonth()}-${day.getDate()} ${day.getHours()}:${day.getMinutes()}:${day.getSeconds()}`;
+  const result: TaskRes[][] = await invoke("app_get_tasks_by_day", {
+    day: dayString,
+  });
+  return result;
+}
 
 export async function get_all_tasks(): Promise<TaskRes[][]> {
   const result: TaskRes[][] = await invoke("app_get_all_tasks");

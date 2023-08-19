@@ -34,7 +34,6 @@
 
   const setNextDay = () => {
     today = addDaysToDate(today, 1);
-    console.log("today is", today);
   };
 
   // const start_at = new Date();
@@ -51,9 +50,9 @@
 <Layout>
   <main>
     <div class="button-group">
-      <Button width={"150px"} onClick={setToPreviousDay}>Previous Day</Button>
+      <Button width={"180px"} onClick={setToPreviousDay}>Previous Day</Button>
       <CurrentDateTime date={today} />
-      <Button onClick={setNextDay}>Next Day</Button>
+      <Button width={"150px"} onClick={setNextDay}>Next Day</Button>
     </div>
     <Modal onDismiss={dismissModal} isOpen={modalIsOpen}>Yoo</Modal>
     <Schedule>

@@ -17,8 +17,11 @@
 </button>
 
 <style>
-  .button {
+  button {
     border-radius: 7px;
     font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>

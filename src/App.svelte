@@ -3,7 +3,6 @@
   import { Router, Route } from "svelte-routing";
   import Overview from "./lib/pages/Overview.svelte";
   import Tasks from "./lib/pages/Tasks.svelte";
-  import Schedules from "./lib/pages/Schedules.svelte";
 
   export let url = "/schedules";
 </script>

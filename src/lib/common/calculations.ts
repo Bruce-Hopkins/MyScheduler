@@ -21,3 +21,7 @@ export function addDaysToDate(date: Date, days: number): Date {
 
   return new Date(newDate);
 }
+
+export function getTimeFromDate(date: Date) {
+  return `${date.getHours()}:${date.getMinutes()}`
+}

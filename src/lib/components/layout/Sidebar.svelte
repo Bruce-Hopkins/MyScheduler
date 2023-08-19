@@ -19,9 +19,20 @@
     <span> Tasks </span>
   </Link>
 </nav>
+<div class="sidebar-slot">
+
+</div>
 
 <style>
+
+  .sidebar-slot{
+    width: 170px;
+    height: 100%;
+    position: relative;
+    display: block;
+  }
   .sidebar {
+    top: 62px;
     padding-top: 20px;
     width: 170px;
     flex-basis: 170px;
@@ -30,6 +41,8 @@
     display: flex;
     justify-content: start;
     flex-direction: column;
+    position: fixed;
+    height: 100%;
   }
   .icon-container {
     display: flex;

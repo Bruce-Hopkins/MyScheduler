@@ -19,7 +19,7 @@
 <style>
   button {
     border-radius: 7px;
-    font-weight: 500;
+    font-weight: 600;
     display: flex;
     justify-content: center;
     align-items: center;

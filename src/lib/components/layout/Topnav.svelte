@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getTimeFromDate } from "../../common/calculations";
+  import { getTimeFromDate } from "../../common/calculations";
 
   let time = getTimeFromDate(new Date())
   setInterval(changeTime, 1000 )

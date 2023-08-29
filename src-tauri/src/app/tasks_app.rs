@@ -43,12 +43,23 @@ pub async fn app_get_all_tasks(
     state: tauri::State<'_, AppStateRef>,
 ) -> AppResult<Vec<Vec<TaskRes>>> {
     let result = state.task_service.get_my_tasks().await;
-    println!("Result is done");
     match result {
         Ok(value) => Ok(value.group_tasks().into_res()),
         Err(e) => Err(e.to_string()),
     }
 }
+
+#[tauri::command]
+pub async fn app_get_availble_tasks(
+    state: tauri::State<'_, AppStateRef>,
+) -> AppResult<Vec<TaskRes>> {
+    let result = state.task_service.get_my_tasks().await;
+    match result {
+        Ok(value) => Ok(value.into_res()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 
 #[tauri::command]
 pub async fn app_get_task_by_id(

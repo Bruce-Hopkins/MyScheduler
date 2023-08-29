@@ -7,7 +7,9 @@
   <Topnav />
   <div class="content">
     <Sidebar />
-    <slot />
+    <div class="main-container">
+      <slot />
+    </div>
   </div>
 </div>
 
@@ -19,5 +21,8 @@
   .content {
     display: flex;
     justify-content: start;
+  }
+  .main-container {
+    flex-basis: 100%;
   }
 </style>

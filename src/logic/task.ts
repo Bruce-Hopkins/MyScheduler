@@ -1,4 +1,8 @@
-import { dateToMinutes, pxPerMinute } from "../lib/common/calculations";
+import {
+  dateToMinutes,
+  getMinutesString,
+  pxPerMinute,
+} from "../lib/common/calculations";
 import type { Color } from "../lib/types/common";
 import type { TaskRes } from "../lib/types/tasks";
 
@@ -44,6 +48,31 @@ export class TaskModel {
     const seconds = miliseconds / 1000;
     const minutes = seconds / 60;
     return minutes;
+  }
+
+  get time() {
+    const minutes = getMinutesString(this.start_at);
+    return `${this.start_at.getHours()}:${minutes}`;
+  }
+
+  get date() {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const monthName = months[this.start_at.getMonth()];
+    return `${monthName} ${this.start_at.getDate()}`;
   }
 
   get height() {

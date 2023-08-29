@@ -1,13 +1,12 @@
 <script lang="ts">
-    import DayButton from "./DayButton.svelte";
+  import { DaySelector } from "../../../logic/daySelector";
+  import DayButton from "./DayButton.svelte";
 
-  const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daySelector = new DaySelector();
 </script>
 
 <div>
-  {#each week as day, index}
-    <DayButton name={day} date={new Date()}/>
+  {#each daySelector.daysOfTheWeek as day, index}
+    <DayButton {index} name={day} date={new Date()} />
   {/each}
 </div>
-
-

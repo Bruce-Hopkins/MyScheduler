@@ -23,5 +23,14 @@ export function addDaysToDate(date: Date, days: number): Date {
 }
 
 export function getTimeFromDate(date: Date) {
-  return `${date.getHours()}:${date.getMinutes()}`
+  return `${date.getHours()}:${getMinutesString(date)}`;
+}
+
+export function getMinutesString(date: Date) {
+  const minutes = date.getMinutes();
+  if (minutes < 10) {
+    return `0${minutes}`;
+  } else {
+    return `${minutes}`;
+  }
 }

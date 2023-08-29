@@ -40,3 +40,8 @@ export async function get_all_tasks(): Promise<TaskRes[][]> {
   const result: TaskRes[][] = await invoke("app_get_all_tasks");
   return result;
 }
+
+export async function get_available_tasks(): Promise<TaskRes[]> {
+  const result: TaskRes[] = await invoke("app_get_availble_tasks");
+  return result;
+}

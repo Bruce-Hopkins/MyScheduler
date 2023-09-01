@@ -65,8 +65,8 @@
 
 <style>
   main {
-    width: 90vw;
-    padding: 30px;
+    position: absolute;
+    width: 100%;
   }
   .logo {
     height: 6em;

@@ -15,14 +15,19 @@
 
 <style>
   .layout {
+    display: flex;
+    flex-direction: column;
     width: 100vw;
     height: 100vh;
   }
   .content {
     display: flex;
+    flex-direction: row;
     justify-content: start;
+    height: 100%;
   }
   .main-container {
-    flex-basis: 100%;
+    width: 100%;
+    position: relative;
   }
 </style>

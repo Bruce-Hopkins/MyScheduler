@@ -5,6 +5,7 @@
   import "./layout.css";
 </script>
 
+<div class="sidebar-slot" />
 <nav class="sidebar">
   <Link to="/schedules">
     <div class="icon-container">
@@ -19,14 +20,11 @@
     <span> Tasks </span>
   </Link>
 </nav>
-<div class="sidebar-slot">
-
-</div>
 
 <style>
-
-  .sidebar-slot{
+  .sidebar-slot {
     width: 170px;
+    padding-inline: 12px;
     height: 100%;
     position: relative;
     display: block;

@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { create_task } from "../../api/tasks-api";
+  import { dateToDatetimeISOString } from "../../common/converstions";
   import type { Color } from "../../types/common";
+  import type { TaskCreate } from "../../types/tasks";
   import Button from "../common/Button.svelte";
   import DateInput from "../common/DateInput.svelte";
   import Input from "../common/Input.svelte";
@@ -9,11 +12,36 @@
 
   let title = "";
   let startDate = "";
-  let hour = 0;
-  let minute = 0;
-  let color: Color = "#";
+  let startHour = 0;
+  let startMinute = 0;
 
-  const onSubmit = () => {};
+  let color: Color = "#";
+  let endDate = "";
+  let endHour = 0;
+  let endMinute = 0;
+
+  const onSubmit = () => {
+    alert("Clicked!");
+    const startDatetime = dateToDatetimeISOString(
+      startDate,
+      startHour,
+      startMinute
+    );
+    const endDatetime = dateToDatetimeISOString(endDate, endHour, endMinute);
+    const task: TaskCreate = {
+      body: title,
+      start_at: startDatetime,
+      end_at: endDatetime,
+      colors: color,
+    };
+    create_task(task)
+      .then(() => {
+        alert("Done!");
+      })
+      .catch((e) => {
+        alert(e);
+      });
+  };
 </script>
 
 <div class="modal">
@@ -25,26 +53,39 @@
   <div>
     <Label forForm="start-date" value="Start Date" />
     <DateInput bind:value={startDate} />
+    <span class="time-input-container">
+      <NumberInput bind:value={startHour} min={"0"} max={"23"} />
+    </span>
+    <span class="time-input-container">
+      <NumberInput bind:value={startMinute} min={"0"} max={"23"} />
+    </span>
   </div>
   <div>
-    <Label forForm="time" value="Time" />
-    <NumberInput name="hour" bind:value={hour} max="23" min="0" />
-    <span class="colon">:</span>
-    <NumberInput name="minute" bind:value={minute} step="10" max="59" min="0" />
+    <Label forForm="end-date" value="End Date" />
+    <DateInput bind:value={endDate} />
+    <span class="time-input-container">
+      <NumberInput bind:value={endHour} min={"0"} max={"23"} />
+    </span>
+    <span class="time-input-container">
+      <NumberInput bind:value={endMinute} min={"0"} max={"23"} />
+    </span>
   </div>
   <div>
     <Label value="Color" forForm="color" />
     <ColorSelector bind:value={color} />
-    {color}
   </div>
   <div class="button-container">
     <Button onClick={onSubmit}>Create</Button>
   </div>
+  {startDate}
 </div>
 
 <style>
   h2 {
     margin: 10px 0 40px 0;
+  }
+  .time-input-container {
+    margin-left: 20px;
   }
   .button-container {
     margin: 20px 0;

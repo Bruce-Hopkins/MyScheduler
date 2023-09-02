@@ -8,7 +8,6 @@ export async function get_tasks(): Promise<TaskRes[]> {
 
 export async function create_task(task: TaskCreate): Promise<string> {
   const result: string = await invoke("app_create_task", { task: task });
-  console.log("Creating!!");
   return result;
 }
 

@@ -12,6 +12,6 @@
 <style>
   input {
     border: #8f8f8f 1px solid;
-    padding: 10px;
+    padding: 19px 10px 10px 10px;
   }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Color } from "../../types/common";
+  import Button from "../common/Button.svelte";
   import DateInput from "../common/DateInput.svelte";
   import Input from "../common/Input.svelte";
   import Label from "../common/Label.svelte";
@@ -11,6 +12,8 @@
   let hour = 0;
   let minute = 0;
   let color: Color = "#";
+
+  const onSubmit = () => {};
 </script>
 
 <div class="modal">
@@ -34,13 +37,23 @@
     <ColorSelector bind:value={color} />
     {color}
   </div>
+  <div class="button-container">
+    <Button onClick={onSubmit}>Create</Button>
+  </div>
 </div>
 
 <style>
   h2 {
     margin: 10px 0 40px 0;
   }
+  .button-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  }
   .modal {
+    max-width: 800px;
+    width: 100%;
     padding: 30px;
     background-color: #404040;
     border-radius: 24px;

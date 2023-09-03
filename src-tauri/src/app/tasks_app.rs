@@ -54,6 +54,7 @@ pub async fn app_get_availble_tasks(
     state: tauri::State<'_, AppStateRef>,
 ) -> AppResult<Vec<TaskRes>> {
     let result = state.task_service.get_my_tasks().await;
+    println!("Result is {:?}", result);
     match result {
         Ok(value) => Ok(value.into_res()),
         Err(e) => Err(e.to_string()),

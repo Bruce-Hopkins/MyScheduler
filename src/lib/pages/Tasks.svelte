@@ -18,25 +18,38 @@
   <Modal isOpen={modalIsOpen} onDismiss={dismissModal}>
     <TaskCreateModal />
   </Modal>
-  <div class="button-container">
-    <div class="button-group">
-      <Button onClick={openCreateModal}>New</Button>
+  <div class="tasks-page">
+    <div class="button-container">
+      <div class="button-group">
+        <Button onClick={openCreateModal}>New</Button>
+      </div>
     </div>
-  </div>
-  <div class="tasks-container">
-    <AvailableTasks />
+    <div class="tasks-container">
+      <AvailableTasks />
+    </div>
   </div>
 </Layout>
 
 <style>
+  .tasks-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow-y: auto;
+  }
   .button-container {
     display: flex;
     justify-content: end;
     width: 90%;
+    height: 100px;
     margin: 50px auto;
   }
   .tasks-container {
     width: 750px;
     margin: 0 auto;
+    flex-basis: 100%;
+    position: relative;
   }
 </style>

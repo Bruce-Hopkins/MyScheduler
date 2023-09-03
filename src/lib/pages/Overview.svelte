@@ -16,7 +16,6 @@
   let tasks: TaskRes[][] = [];
   let today = new Date();
   async function get_tasks() {
-    console.log("Tasks are", tasks);
     tasks = await get_tasks_by_day(today);
   }
   get_tasks();

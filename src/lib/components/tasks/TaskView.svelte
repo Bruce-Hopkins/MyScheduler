@@ -13,8 +13,12 @@
     {task.body}
   </h2>
   <div class="inline-block">
-    <div class="inline"><ClockIcon /> <span>{taskModel.time}</span></div>
-    <div class="inline"><Calendar /> <span>{taskModel.date}</span></div>
+    <div class="inline">
+      <ClockIcon size={20} /> <span>{taskModel.time}</span>
+    </div>
+    <div class="inline">
+      <Calendar size={20} /> <span>{taskModel.date}</span>
+    </div>
   </div>
 </div>
 

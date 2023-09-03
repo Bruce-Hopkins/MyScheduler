@@ -175,6 +175,7 @@ fn start_app(app_state: Arc<AppState>) {
         .manage(app_state)
         .invoke_handler(tauri::generate_handler![
             my_custom_command,
+            app_get_availble_tasks,
             app_get_tasks_by_day,
             app_get_all_tasks,
             app_get_task_by_id,
